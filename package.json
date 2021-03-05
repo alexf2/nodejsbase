@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "description": "NodeJs base mentoring",
   "main": "./src/index.ts",
+
   "scripts": {
     "task1": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/task1.ts",
     "task1:lint": "concurrently \"npm run run:task1\" \"npm run lint:watch\"",
@@ -12,6 +13,7 @@
     "lint:watch": "watch \"npm run lint -- \" ./src -du --wait=0.2",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+
   "repository": {
     "type": "git",
     "url": "git@git.epam.com:Alexey_Fedorov1/nodejsbase.git"
