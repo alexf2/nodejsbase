@@ -1,0 +1,138 @@
+ {
+    "env": {
+        "browser": true,
+        "jest": true,
+        "es6": true
+    },
+    "globals": {
+        "Feature": true,
+        "Scenario": true,
+        "Before": true,
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "settings": {
+        "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
+        "import/parsers": {
+            "@typescript-eslint/parser": [".ts", ".tsx"]
+        },
+        "import/resolver": {
+            "typescript": {}
+        }
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaFeatures": {
+          "jsx": true
+        },
+        "project": "./tsconfig.json",
+        "tsconfigRootDir": "./",
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": ["prettier", "jest", "@typescript-eslint", "import"],
+    "extends": [
+        "eslint:recommended",
+        "plugin:import/recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    "rules": {
+        "indent": [
+            2,
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "max-len": [1, 150],
+        "object-curly-spacing": 0,
+        "quotes": ["error", "single"],
+        "comma-dangle": ["error", "always-multiline"],
+        "class-methods-use-this": 0,
+        "no-underscore-dangle": 0,
+        "no-case-declarations": 0,
+        "no-param-reassign": 0,
+        "no-use-before-define": "off",
+        "no-shadow": "off",
+        "no-multi-assign": "off",
+        "arrow-body-style": "warn",
+        "camelcase": "warn",
+
+
+        "@typescript-eslint/no-shadow": ["error"],
+        "@typescript-eslint/no-use-before-define": ["warn",
+            {"enums": false, "typedefs": false, "ignoreTypeReferences": true, "functions": false, "classes": false}],
+        "@typescript-eslint/no-explicit-any": 0,
+        "@typescript-eslint/interface-name-prefix": 0,
+        "@typescript-eslint/member-ordering": 0,
+        "@typescript-eslint/naming-convention": 0,
+        "@typescript-eslint/no-namespace": 0,
+        "@typescript-eslint/no-empty-interface": 0,
+        "@typescript-eslint/no-non-null-assertion": 0,
+        "@typescript-eslint/explicit-module-boundary-types": 0,
+        "@typescript-eslint/no-unused-vars": 0,
+        "@typescript-eslint/ban-types": 1,
+        "@typescript-eslint/no-empty-function": 1,
+
+        "new-cap": [
+            "error",
+            {
+                "capIsNew": false
+            }
+        ],
+        "no-plusplus": 0,
+        "no-return-assign": 0,
+        "spaced-comment": 0,
+        "no-unused-vars": 1,
+        "valid-jsdoc": "off",
+        "linebreak-style": 0,
+        "arrow-parens": 0,
+        "no-confusing-arrow": 0,
+        "no-unused-expressions": 0,
+        "jsx-quotes": ["error", "prefer-single"],
+        "no-multi-spaces": 0,
+        "object-curly-newline": 0,
+        "function-paren-newline": 0,
+        "prefer-destructuring": 0,
+        "prefer-promise-reject-errors": 0,
+        "padded-blocks": 0,
+        "no-restricted-globals": 0,
+        "sort-keys": 0,
+        "no-console": 0,
+        "default-case": 0,
+        "no-nested-ternary": 0,
+        "no-restricted-syntax": 1,
+
+        "import/export": "warn",
+        "import/extensions": 0,
+        "import/no-unresolved": 1,
+        "import/no-named-as-default": "warn",
+        "import/prefer-default-export": 0,
+        "import/no-named-as-default-member": "warn",
+        "import/no-extraneous-dependencies": 0,
+        "import/no-default-export": 1,
+        "import/first": 1,
+        "no-useless-constructor": 0,
+        "no-bitwise": 0
+    },
+    "overrides": [
+        {
+            "files": ["*.ts", "*.tsx"],
+            "rules": {
+                "react/prop-types": "off",
+                "no-unused-vars": "off",
+                "no-mixed-operators": 0,
+                "no-prototype-builtins": 0,
+                "consistent-return": 0
+            }
+        },
+        {
+            "files": ["*.js", "*.jsx"],
+            "rules": {
+                "import/no-default-export": 0
+            }
+        }
+    ]
+}
