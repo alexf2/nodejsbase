@@ -1,0 +1,50 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch via NPM: task1",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "task1"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node",
+            "console": "externalTerminal"
+        },
+
+        {
+            "name": "Launch via NPM: task2",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "task2"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node",
+            "console": "externalTerminal"
+        },
+
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\src\\index.ts",
+            "outFiles": [
+                "${workspaceFolder}/**/*.ts"
+            ]
+        }
+    ]
+}

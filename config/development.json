@@ -1,0 +1,10 @@
+ {
+  "logger": {
+    "level": "info"
+  },
+  "data": {
+    "folder": "data",
+    "task2-source-file": "nodejs-hw1-ex1.csv",
+    "csv-delimiter": ";"
+  }
+}
