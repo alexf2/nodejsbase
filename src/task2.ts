@@ -1,41 +1,40 @@
-import csvtojson from 'csvtojson';
 import {Converter} from 'csvtojson/v2/Converter';
 import * as fs from 'fs';
 import * as path from 'path';
-import {Config} from './config';
-const BUFFER_SIZE = 1024;
+import {Config} from './helpers';
+import {initilaizeConfig} from './appConfig';
+import {csvStreamFactory, csv2jsonFactory, jsonStreamFactory} from './task1BufferedStreams';
 
 type Opt<T> = T | undefined;
+type Factory<T> = (...a: any[]) => T;
 
 const getOutFilePath = filePath => {
     const {ext, base, ...rest} = path.parse(filePath);
     return path.format({...rest, ext: '.json'});
 };
 
-const main = () => {
+const mainBufferedStream = (
+    inputFactory: Factory<fs.ReadStream>,
+    converterFactory: Factory<Converter>,
+    outFactory: Factory<fs.WriteStream>,
+) => {
+    initilaizeConfig(); // инициализируем конфигурацию
+
     const csvPath = Config.task2FilePath;
     const jsonPath = getOutFilePath(csvPath);
-    let inputStream: Opt<fs.ReadStream>;
-    let outStream: Opt<fs.WriteStream>;
-    let converter: Opt<Converter>;
+    let inputStream: Opt<fs.ReadStream> = undefined;
+    let outStream: Opt<fs.WriteStream> = undefined;
+    let converter: Opt<Converter> = undefined;
 
     const cleanUp = (msg?: string, err?: any) => {
         msg && console.log(msg);
         err && console.log(err);
 
-        inputStream?.destroy(), inputStream = undefined;
-        converter?.end(), converter = undefined;
-        err && (outStream?.destroy(), outStream = undefined);
+        inputStream?.destroy();
+        err && outStream?.destroy();
     };
 
-    converter = csvtojson(
-        {
-            trim: true,
-            delimiter: Config.csvDelimiter,
-            downstreamFormat: 'array',
-        },
-        {highWaterMark: BUFFER_SIZE},
-    ).on('done', err => {
+    converter = converterFactory().on('done', err => {
         if (err) {
             cleanUp(`Ошибка конвертации ${csvPath}`, err);
         } else {
@@ -43,20 +42,12 @@ const main = () => {
         }
     });
 
-    inputStream = fs.createReadStream(csvPath, {highWaterMark: BUFFER_SIZE, encoding: Config.inputEncoding});
+    inputStream = inputFactory(csvPath);
     inputStream.on('error', err => {
         cleanUp(`Ошибка чтения ${csvPath}`, err);
     });
 
-    /* w - усечь, если файл существует */
-    outStream = fs.createWriteStream(
-        getOutFilePath(csvPath),
-        {
-            highWaterMark: BUFFER_SIZE,
-            encoding: Config.outEncoding,
-            flags: 'w',
-        },
-    ); 
+    outStream = outFactory(getOutFilePath(csvPath));
     outStream.on('error', err => {
         cleanUp(`Ошибка записи ${csvPath}`, err);
     });
@@ -64,4 +55,4 @@ const main = () => {
     inputStream.pipe(converter).pipe(outStream);
 }
 
-main();
+mainBufferedStream(csvStreamFactory, csv2jsonFactory, jsonStreamFactory);

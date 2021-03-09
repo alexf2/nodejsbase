@@ -88,31 +88,22 @@ export const config: convict.Config = convict({
     },
 });
 
-const configFile = path.join(process.cwd(), 'config', `${config.get('env')}.json`);
-
-if (existsSync(configFile)) {
-    config
-        .loadFile(configFile)
-        .validate({allowed: 'strict'});
-}
+let isInitialized: boolean;
 
 /**
- * Хэлперы для получения конфигурации.
+ * Необходимо выполнить перед использование конфигурации.
  */
-export class Config {
-    static get docFolder() { 
-        return path.join(process.cwd(), config.get('data.folder'));
-    }
-    static get task2FilePath() {
-        return path.join(Config.docFolder, config.get('data.task2-source-file'));
-    }
-    static get csvDelimiter() {
-        return config.get('data.csv-delimiter')
-    }
-    static get inputEncoding() {
-        return config.get('data.input-encoding')
-    }
-    static get outEncoding() {
-        return config.get('data.out-encoding')
+export const initilaizeConfig = () => {
+    if (!isInitialized) {
+        isInitialized = true;
+        const configFile = path.join(process.cwd(), 'config', `${config.get('env')}.json`);
+
+        if (existsSync(configFile)) {
+            config
+                .loadFile(configFile)
+                .validate({allowed: 'strict'});
+        }
     }
 }
+
+export const getInitialized = () => isInitialized;
