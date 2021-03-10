@@ -33,3 +33,8 @@ export class Config {
         return config.get('data.out-encoding')
     }
 }
+
+export const getOutFilePath = filePath => {
+    const {ext, base, ...rest} = path.parse(filePath);
+    return path.format({...rest, ext: '.json'});
+};
