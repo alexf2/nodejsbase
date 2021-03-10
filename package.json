@@ -9,8 +9,8 @@
     "task1": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/task1.ts",
     "task1:lint": "concurrently \"npm run run:task1\" \"npm run lint:watch\"",
 
-    "task2": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/task2.ts",
-    "task2:lint": "concurrently \"npm run run:task2\" \"npm run lint:watch\"",
+    "task2": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/task2.ts direct-read ",
+    "task2:lint": "concurrently \"npm run run:task2 fixed\" \"npm run lint:watch\"",
 
     "lint": "eslint --ext=js,ts ./src --quiet",
     "lint:watch": "watch \"npm run lint -- \" ./src -du --wait=0.2",

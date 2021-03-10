@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import csvtojson from 'csvtojson';
-import {Config} from './helpers';
+import {Config} from '.';
 
 const BUFFER_SIZE = 1024;
 
