@@ -8,8 +8,8 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends DtoWithSoftDel<TK
 
     protected abstract generateKey(): TKey;
 
-    public readonly getAll = (top?: number) => {
-        const topF = R.take(top || this.users.length);
+    public readonly getAll = (limit?: number | null) => {
+        const topF = R.take(limit || this.users.length);
         if (this.softDel) {
             return R.compose<TDto[], TDto[], TDto[]>(topF, R.filter(R.complement(R.propEq('isDeleted', true)) as any) as any)(this.users);
         }
@@ -71,7 +71,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends DtoWithSoftDel<TK
 
     public readonly count = () => {
         if (this.softDel) {
-            return this.users.reduce((prev, curr, i) => curr.isDeleted ? 0 : 1, 0);
+            return this.users.reduce((prev, curr, i) => prev + (curr.isDeleted ? 0 : 1), 0);
         } else {
             return this.users.length;
         }

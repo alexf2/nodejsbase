@@ -1,22 +1,16 @@
 import * as http from 'http';
-import {v4 as uuidv4} from 'uuid';
+import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
 import {requestId} from './middleware';
 import {UserStorage} from './DAL/UserStorage';
 import {initilaizeConfig} from './appConfig';
 import {UserController} from './controllers';
 import {Config, loggers, Logger} from './helpers';
+import {testUsers} from './part2_testData';
+import {User} from './DAL/models';
 
 initilaizeConfig(); // инициализируем конфигурацию
 
-const testUsers = [
-    {
-        id: uuidv4(),
-        login: 'andrey',
-        password: 'xxx',
-        age: 27,
-        isDeleted: false,
-    }];
 
 class SimpleExpressServer {
     private storage?: UserStorage;
@@ -29,10 +23,12 @@ class SimpleExpressServer {
         private logger: Logger,
         private app: Application = express()) {
 
+        app.set('query parser', queryString => new URLSearchParams(queryString));
+
         this.logger.info('Server is being initialized...');
     }
 
-    private readonly initDb = async () => await Promise.resolve(new UserStorage(testUsers));
+    private readonly initDb = async () => await Promise.resolve(new UserStorage(testUsers as User[]));
 
     public readonly run = async () => {
         this.logger.info('Server is about to run');
