@@ -1,10 +1,7 @@
 import {Converter} from 'csvtojson/v2/Converter';
 import * as fs from 'fs';
 import {Config, getOutFilePath} from './helpers';
-import {initilaizeConfig} from './appConfig';
 import {Factory} from './mentoring.types';
-
-initilaizeConfig(); // инициализируем конфигурацию
 
 /**
  * Конвертация с чтением CSV через фиксированный буффер.

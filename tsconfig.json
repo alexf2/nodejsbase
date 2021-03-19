@@ -18,5 +18,6 @@
 
     "sourceMap": true,                              /* Generates corresponding '.map' file. */
   },
-  "exclude": ["**/node_modules/*", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

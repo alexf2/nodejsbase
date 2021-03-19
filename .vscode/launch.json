@@ -35,6 +35,21 @@
         },
 
         {
+          "name": "Launch via NPM: part2",
+          "request": "launch",
+          "runtimeArgs": [
+              "run-script",
+              "part2"
+          ],
+          "runtimeExecutable": "npm",
+          "skipFiles": [
+              "<node_internals>/**"
+          ],
+          "type": "pwa-node",
+          "console": "externalTerminal"
+      },
+
+        {
             "type": "pwa-node",
             "request": "launch",
             "name": "Launch Program",
