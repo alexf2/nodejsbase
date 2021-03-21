@@ -1,5 +1,5 @@
 import * as http from 'http';
-import {URLSearchParams} from 'url';
+// import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
 import {requestId} from './middleware';
 import {UserStorage} from './DAL/UserStorage';
@@ -23,7 +23,9 @@ class SimpleExpressServer {
         private logger: Logger,
         private app: Application = express()) {
 
-        app.set('query parser', queryString => new URLSearchParams(queryString));
+        // решил использовать joi-express, а он умеет разбирать параметры querystring и кастить их типы по схеме,
+        // поэтому этот парсер уже не нужен
+        // app.set('query parser', queryString => new URLSearchParams(queryString));
 
         this.logger.info('Server is being initialized...');
     }
@@ -33,9 +35,12 @@ class SimpleExpressServer {
     public readonly run = async () => {
         this.logger.info('Server is about to run');
 
+        // инициализация и конфигурирование сервера
         this.storage = await this.initDb();
         this.addGlobalMiddlewares();
         this.addControllers();
+
+        // запуск сервера
         this.httpServer = this.app.listen(
             this.port,
             this.ip,

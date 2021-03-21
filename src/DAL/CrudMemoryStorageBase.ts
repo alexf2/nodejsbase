@@ -3,6 +3,8 @@ import * as R from 'ramda';
 import {IStorage, DtoWithSoftDel} from './dal.types';
 
 export abstract class CrudMemoryStorageBase<TKey, TDto extends DtoWithSoftDel<TKey>> implements IStorage<TDto, TKey> {
+    private readonly cleanFields = R.dissoc('isDeleted');
+
     constructor(protected users: TDto[] = [], protected softDel: boolean) {
     }
 
@@ -11,8 +13,13 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends DtoWithSoftDel<TK
     public readonly getAll = (limit?: number | null) => {
         const topF = R.take(limit || this.users.length);
         if (this.softDel) {
-            return R.compose<TDto[], TDto[], TDto[]>(topF, R.filter(R.complement(R.propEq('isDeleted', true)) as any) as any)(this.users);
+            return R.compose<TDto[], TDto[], TDto[], TDto[]>(
+                R.map(this.cleanFields) as any,
+                topF,
+                R.filter(R.complement(R.propEq('isDeleted', true)) as any) as any,
+            )(this.users);
         }
+
         return topF(this.users);
     }
 
@@ -21,13 +28,15 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends DtoWithSoftDel<TK
         if (this.softDel && res?.isDeleted) {
             return;
         }
-        return res;
+
+        return res && this.cleanFields(res) as any as TDto || res;
     }
 
     public readonly create = (data?: Partial<TDto>) => {
         const {isDeleted, ...rest} = data || {};
         const item = {...rest, id: this.generateKey()} as TDto;
         this.users.push(item);
+
         return item;
     };
 
@@ -42,6 +51,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends DtoWithSoftDel<TK
             const {isDeleted, ...rest} = data;
             const newItem = R.merge(it, {...rest, id}) as TDto;
             this.users = R.update(i, newItem)(this.users);
+
             return newItem;
         }
     }
@@ -55,7 +65,8 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends DtoWithSoftDel<TK
             } else {
                 this.users = R.remove(i, 1, this.users);
             }
-            return item;
+
+            return this.cleanFields(item) as any as TDto;
         }
     }
     
