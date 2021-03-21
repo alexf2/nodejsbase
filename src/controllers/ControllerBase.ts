@@ -1,6 +1,7 @@
 import {Application, Router} from 'express';
 import {IController} from './controllers.types';
 import {Logger} from '../helpers';
+import {catchError} from '../middleware';
 
 export abstract class ControllerBase implements IController {
     protected router?: Router;
@@ -12,11 +13,14 @@ export abstract class ControllerBase implements IController {
     public readonly install = (expressApp: Application) => {
         if (!this.installed) {
             this.router = Router();
+
             this.installLocalMiddlewares(this.router);
             this.installRoutes(this.router);
+            // устанавливаем обработчик ошибок после всех методов контроллера, чтобы он ловил next(err), вызванное в них
+            this.router.use(catchError(this.logger));
 
+            // регистрируем роутер в нашем сервере
             expressApp.use(this.basePath, this.router);
-
             this.installed = true;
         }
     }

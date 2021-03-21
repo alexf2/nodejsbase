@@ -2,6 +2,7 @@
  * Logger for backend
  */
 import * as W from 'winston';
+import 'winston-daily-rotate-file';
 import {Config} from './Config';
 
 export type Logger = W.Logger;
@@ -12,7 +13,16 @@ const TIME_FORMAT = 'HH:mm:ss SSS';
 const {combine, timestamp, prettyPrint, colorize, json, simple, printf} = W.format;
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
-const formatter = printf(({message, level, timestamp, component}) => `${timestamp} [${component}] ${level}: ${message}`);
+const customFormatter = printf(({message, level, timestamp, component, meta, stack}) => {
+    let layout = `${timestamp} [${component}] ${level}: ${message}`;
+    if (meta) {
+        layout += `\r\n\tMeta: ${JSON.stringify(meta)}`;
+    }
+    if (stack) {
+        layout += `\r\n${stack}`;
+    }
+    return layout;
+});
 
 // https://www.datadoghq.com/blog/node-logging-best-practices/
 class LoggersManager {
@@ -28,29 +38,14 @@ class LoggersManager {
             const logSink = transport === 'Console' ?
                 new (W.transports.Console)()
                 :
-                new (W.transports.File)({filename: COMMON_LOG_FILE_NAME});
+                new (W.transports.DailyRotateFile)({
+                    datePattern: 'DD-MM-YYYY',
+                    filename: COMMON_LOG_FILE_NAME,
+                });
 
             this.isCreated = true;
 
-            this.coreLogger = W.createLogger({
-                defaultMeta: {component: 'CORE'},
-                level,
-                format: combine(
-                    ...([
-                        timestamp({format: TIME_FORMAT}),
-                        prettyPrint(),
-                        transport === 'Console' ? colorize() : undefined,
-                        format === 'Simple' ? simple() : json(),
-                        formatter,
-                    ].filter(Boolean) as W.Logform.Format[]),
-                ),
-                transports: [logSink],
-                exitOnError: true,
-                exceptionHandlers: [logSink],
-            });
-
-            this.memoryServiceLogger = W.createLogger({
-                defaultMeta: {component: 'M_SERVICE'},
+            const baseConfig = {
                 level,
                 format: combine(
                     ...([
@@ -59,12 +54,22 @@ class LoggersManager {
                         prettyPrint(),
                         transport === 'Console' ? colorize() : undefined,
                         format === 'Simple' ? simple() : json(),
-                        formatter,
+                        customFormatter,
                     ].filter(Boolean) as W.Logform.Format[]),
                 ),
                 transports: [logSink],
                 exitOnError: true,
                 exceptionHandlers: [logSink],
+            };
+
+            this.coreLogger = W.createLogger({
+                defaultMeta: {component: 'CORE'},
+                ...baseConfig,
+            });
+
+            this.memoryServiceLogger = W.createLogger({
+                defaultMeta: {component: 'M_SERVICE'},
+                ...baseConfig,
             });
         }
     }
