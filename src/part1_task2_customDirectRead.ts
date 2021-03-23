@@ -17,7 +17,7 @@ export const mainCustomLineStream = (
 
     const inputStream = inputFactory(csvPath, 1) // задаём размер буффера потока 1 байт и читаем CSV побайтно, накапливая только одну строку
         .on('readable', () => {
-            const data = inputStream!.read();
+            const data = inputStream.read();
             if (data) {
                 const char = data.toString();
                 line += char;
@@ -49,18 +49,18 @@ export const mainCustomLineStream = (
     const writeLine = (isFinal?: boolean) => {
         if (!line) {
             if (isFinal) {
-                converter!.end();
+                converter.end();
             }
             return;
         }
 
-        converter!.isPaused() && converter!.resume();
+        converter.isPaused() && converter.resume();
 
-        if (converter?.write(line, undefined, () => isFinal && converter!.end())) {
+        if (converter?.write(line, undefined, () => isFinal && converter.end())) {
             line = '';
         } else {
-            inputStream!.pause();
-            converter!.once('drain', () => writeLine(isFinal));
+            inputStream.pause();
+            converter.once('drain', () => writeLine(isFinal));
         }
     }
 

@@ -1,9 +1,6 @@
 import {mainCustomLineStream} from './part1_task2_customDirectRead';
 import {mainBufferedStream} from './part1_task2_fixedBuffer';
 import {csvStreamFactory, csv2jsonFactory, jsonStreamFactory} from './helpers/streamFactories_task2';
-import {initilaizeConfig} from './appConfig';
-
-initilaizeConfig(); // инициализируем конфигурацию
 
 enum ImplementationVer {
     FixedBuffer = 'fixed',

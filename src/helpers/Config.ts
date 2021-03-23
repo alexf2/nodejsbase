@@ -1,11 +1,12 @@
 import * as path from 'path';
-import {config, getInitialized} from '../appConfig';
+import {config, getInitialized, initilaizeConfig} from '../appConfig';
 
 const validateConfig = () => {
     if (getInitialized()) {
         return;
     }
-    throw new Error('Конфигурация должна быть проинициализирована вызовом initilaizeConfig при старте приложения');
+    // throw new Error('Конфигурация должна быть проинициализирована вызовом initilaizeConfig при старте приложения');
+    initilaizeConfig(); // ленивая инициализация
 }
 
 /**
@@ -14,6 +15,7 @@ const validateConfig = () => {
 export class Config {
     // data
     static get docFolder() { 
+        validateConfig();
         return path.join(process.cwd(), config.get('data.folder')!);
     }
     static get task2FilePath() {

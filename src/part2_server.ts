@@ -3,13 +3,10 @@ import * as http from 'http';
 import express, {Application, Request, Response, NextFunction} from 'express';
 import {requestId} from './middleware';
 import {UserStorage} from './DAL/UserStorage';
-import {initilaizeConfig} from './appConfig';
 import {UserController} from './controllers';
 import {Config, loggers, Logger} from './helpers';
 import {testUsers} from './part2_testData';
 import {User} from './DAL/models';
-
-initilaizeConfig(); // инициализируем конфигурацию
 
 
 class SimpleExpressServer {
