@@ -1,5 +1,8 @@
 import * as readline from 'readline';
 
+/**
+ * Реализация на основе встроенного модуля readline.
+ */
 const main = () => {
     const input = process.stdin;
     const output = process.stdout;

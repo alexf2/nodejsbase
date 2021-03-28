@@ -41,6 +41,7 @@ export const mainBufferedStream = (
         err && outStream?.destroy();
     };
 
-    inputStream.pipe(converter).pipe(outStream);
+    inputStream.pipe(converter).pipe(outStream)
+        .on('finish', () => console.log('Запись завершена'));
 }
 

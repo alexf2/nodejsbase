@@ -8,7 +8,7 @@
   "scripts": {
     "part1_task1": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/part1_task1.ts",
     "part1_task1:lint": "concurrently \"npm run part1_task1\" \"npm run lint:watch\"",
-    "part1_task2": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/part1_task2.ts direct-read ",
+    "part1_task2": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/part1_task2.ts transformer ",
     "part2": "cross-env NODE_ENV=development nodemon -w src --exec \"ts-node --project tsconfig.json\" src/part2_server.ts",
     "lint": "eslint --ext=js,ts ./src --quiet",
     "lint:watch": "watch \"npm run lint -- \" ./src -du --wait=0.2",

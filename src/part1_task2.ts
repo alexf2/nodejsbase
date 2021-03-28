@@ -1,10 +1,12 @@
 import {mainCustomLineStream} from './part1_task2_customDirectRead';
 import {mainBufferedStream} from './part1_task2_fixedBuffer';
+import {mainTransformerLineStream} from './part1_task2_transformer';
 import {csvStreamFactory, csv2jsonFactory, jsonStreamFactory} from './helpers/streamFactories_task2';
 
 enum ImplementationVer {
     FixedBuffer = 'fixed',
     CustomDirectReader = 'direct-read',
+    Transformer = 'transformer',
 }
 
 const main = () => {
@@ -19,6 +21,11 @@ const main = () => {
             case ImplementationVer.CustomDirectReader:
                 console.log('Используется прямое чтение');
                 mainCustomLineStream(csvStreamFactory, csv2jsonFactory, jsonStreamFactory);
+                break;
+
+            case ImplementationVer.Transformer:
+                console.log('Используется собственный трансформер');
+                mainTransformerLineStream(csvStreamFactory, csv2jsonFactory, jsonStreamFactory);
                 break;
 
             default:

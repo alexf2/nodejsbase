@@ -9,7 +9,7 @@
             "request": "launch",
             "runtimeArgs": [
                 "run-script",
-                "task1"
+                "part1_task1"
             ],
             "runtimeExecutable": "npm",
             "skipFiles": [
@@ -24,7 +24,7 @@
             "request": "launch",
             "runtimeArgs": [
                 "run-script",
-                "task2"
+                "part1_task2"
             ],
             "runtimeExecutable": "npm",
             "skipFiles": [
@@ -47,6 +47,18 @@
           ],
           "type": "pwa-node",
           "console": "externalTerminal"
+      },
+
+      {
+        "name": "Current TS File",
+        "type": "node",
+        "request": "launch",
+        "args": ["${relativeFile}"],
+        "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+        "sourceMaps": true,
+        "cwd": "${workspaceRoot}",
+        "protocol": "inspector",
+        "console": "externalTerminal",
       },
 
         {

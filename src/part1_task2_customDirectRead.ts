@@ -80,3 +80,7 @@ export const mainCustomLineStream = (
 // https://strongloop.com/strongblog/practical-examples-of-the-new-node-js-streams-api/
 // https://stackoverflow.com/questions/52391773/properly-extend-stream-transform-class-with-typescript
 
+// Decoding buffers in a writable stream
+// https://nodejs.org/api/stream.html#stream_class_stream_transform
+
+// Transforming console: https://ar.al/2018/12/20/a-simple-node-transform-stream-with-the-new-node-10-pipeline-function/
