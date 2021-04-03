@@ -1,0 +1,8 @@
+\! chcp 1251
+CREATE DATABASE nodementoring1 template template1;
+\c nodementoring1
+CREATE ROLE serviceuser WITH LOGIN PASSWORD '12345' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+alter database nodementoring1 owner to serviceuser;   
+CREATE SCHEMA serviceschema AUTHORIZATION serviceuser;
+GRANT CREATE ON SCHEMA serviceschema TO serviceuser ;
+GRANT USAGE ON SCHEMA serviceschema TO serviceuser ;
