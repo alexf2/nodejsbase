@@ -2,15 +2,15 @@ import * as http from 'http';
 // import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
 import {requestId} from './middleware';
-import {UserStorage} from './DAL/UserStorage';
+import {UserStorageInMemory} from './DAL/UserStorageInMemory';
 import {UserController} from './controllers';
-import {Config, loggers, Logger} from './helpers';
+import {Config, loggers, Logger, addRequestId} from './helpers';
+import {UserService} from './services';
+import {IUser} from './DAL/models';
 import {testUsers} from './part2_testData';
-import {User} from './DAL/models';
-
 
 class SimpleExpressServer {
-    private storage?: UserStorage;
+    private storage?: UserStorageInMemory;
     private httpServer?: http.Server;
     private isShuttingdown = false;
 
@@ -27,7 +27,7 @@ class SimpleExpressServer {
         this.logger.info('Server is being initialized...');
     }
 
-    private readonly initDb = async () => await Promise.resolve(new UserStorage(testUsers as User[]));
+    private readonly initDb = async () => new UserStorageInMemory(testUsers as IUser[]);
 
     public readonly run = async () => {
         this.logger.info('Server is about to run');
@@ -74,11 +74,26 @@ class SimpleExpressServer {
     }
 
     private readonly addGlobalMiddlewares = () => {
-        this.app.use(requestId, this.restartingMiddleware, express.json());
+        this.app.use(requestId, this.restartingMiddleware, express.json(), this.globalErrorHandler);
     }
 
+    // добавляется после GlobalMiddlewares
     private readonly addControllers = () => {
-        new UserController(loggers.RestService, this.storage!).install(this.app);
+        const userService = new UserService(loggers.RestService, this.storage!);
+        new UserController(loggers.RestService, userService).install(this.app);
+    }
+
+    private readonly globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+        if (err) {
+            const isParsingError = err instanceof SyntaxError; // тут ловим ошибки парсинга request json из express.json()
+            const code = isParsingError ? 400 : 500;
+            const name = isParsingError ? `RequestParsingError: ${err.name}` : `InternalServerError: ${err.name}`;
+
+            this.logger.error(err.message || name, {meta: addRequestId(res, {name, code}), stack: err.stack});
+            res.status(code).json({name, message: err.message});
+        } else {
+            next();
+        }
     }
 }
 

@@ -45,7 +45,6 @@ export const catchError = (logger: Logger): ErrorRequestHandler => (err, req, re
             name: `GeneralInternalServerError: ${err.name}`,
             message: err.message,
             stack: err.stack,
-
         };
     } else {
         httpError = {

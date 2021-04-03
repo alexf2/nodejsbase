@@ -1,15 +1,15 @@
 import {Opt} from '../mentoring.types';
-import {User} from './models';
+import {IUser} from 'DAL/models';
 
-export interface DtoWithId<T> {
+export interface IDtoWithId<T> {
     id: T;
 }
 
-export interface DtoWithSoftDel<T> extends DtoWithId<T> {
+export interface IDtoWithSoftDel<T> extends IDtoWithId<T> {
     isDeleted: boolean;
 }
 
-export interface IStorage<TDto, TKey> {
+export interface ICrudStorage<TDto, TKey> {
     getAll: (limit?: number | null) => Readonly<TDto>[];
     getById: (id: TKey) => Opt<Readonly<TDto>>;
     create: (data: Opt<Partial<TDto>>) => TDto;
@@ -19,6 +19,6 @@ export interface IStorage<TDto, TKey> {
     count: () => number;
 }
 
-export interface IUserStorage extends IStorage<User, string> {
-    getSuggests: (loginPart?: string | null, limit?: number | null) => User[];
+export interface IUserStorage extends ICrudStorage<IUser, string> {
+    getSuggests: (loginPart?: string | null, limit?: number | null) => IUser[];
 }

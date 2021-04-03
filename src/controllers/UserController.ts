@@ -3,7 +3,7 @@ import {ValidatedRequest} from 'express-joi-validation';
 import {NextFunction, Request, Response, Router} from 'express';
 import {Logger, NotFoundError, getRequestIdMeta} from '../helpers';
 import {ControllerBase} from './ControllerBase';
-import {IUserStorage} from '../DAL/dal.types';
+import {IUserService} from '../services';
 import {
     GetAllQuerySchema,
     userControllerValidator,
@@ -19,7 +19,7 @@ import {
 const BASE_URL = '/api';
 
 export class UserController extends ControllerBase {
-    constructor(logger: Logger, private db: IUserStorage) {
+    constructor(logger: Logger, private userService: IUserService) {
         super(BASE_URL, logger);
     }
 
@@ -28,14 +28,14 @@ export class UserController extends ControllerBase {
      * @example GET api/users?limit=N
      * где N - число, ограничивающее resultset. По умолчанию N не определено и возвращается всё.
      */
-    public readonly getAll = (req: ValidatedRequest<GetAllQuerySchema>, res: Response, next: NextFunction) => {
+    public readonly getAll = async (req: ValidatedRequest<GetAllQuerySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getAll called', getRequestIdMeta(res));
 
         try {
             const {query} = req;
 
-            // const users = this.db.getAll(parseInt(query.get('limit')!));
-            const users = this.db.getAll(query.limit);
+            // const users = this.db.getAll(parseInt(query.get('limit')!)); //URLSearchParams
+            const users = await this.userService.getAllUsers(query.limit);
             if (!users || !users.length) {
                 res.status(204);
             }
@@ -49,11 +49,11 @@ export class UserController extends ControllerBase {
      * Возвращает число пользователей.
      * @example GET api/users/count
      */
-    public readonly getCount = (req: Request, res: Response, next: NextFunction) => {
+    public readonly getCount = async (req: Request, res: Response, next: NextFunction) => {
         this.logger.debug('getCount called', getRequestIdMeta(res));
 
         try {
-            const count = this.db.count();
+            const count = await this.userService.countUsers();
             res.json(count);
         } catch (err) {
             next(err);
@@ -64,12 +64,12 @@ export class UserController extends ControllerBase {
      * Возвращает пользователя по его id.
      * @example GET api/user/:id
      */
-    public readonly getById = (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
+    public readonly getById = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getById called', getRequestIdMeta(res));
 
         try {
             const {id} = req.params;
-            const user = this.db.getById(id);
+            const user = await this.userService.getUserById(id);
             if (user) {
                 res.json(user);
             } else {
@@ -85,11 +85,11 @@ export class UserController extends ControllerBase {
      * @example POST api/user
      * body: Partial<User> без id, isDeleted в теле игнорируется
      */
-    public readonly create = (req: ValidatedRequest<CreateBodySchema>, res: Response, next: NextFunction) => {
+    public readonly create = async (req: ValidatedRequest<CreateBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('create called', getRequestIdMeta(res));
 
         try {
-            const user = this.db.create(req.body);
+            const user = await this.userService.createUser(req.body);
             res.status(201).json(user);
         } catch (err) {
             next(err);
@@ -102,12 +102,12 @@ export class UserController extends ControllerBase {
      * body: Partial<User>, id и isDeleted в теле игнорируется, остальные поля мёржатся в текущий стэйт
      * TODO: может PATCH?
      */
-    public readonly update = (req: ValidatedRequest<CreateBodySchema>, res: Response, next: NextFunction) => {
+    public readonly update = async (req: ValidatedRequest<CreateBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('update called', getRequestIdMeta(res));
 
         try {
             const {id} = req.params;
-            const user = this.db.update(id, req.body);
+            const user = await this.userService.updateUser({...req.body, id});
             if (user) {
                 res.json(user);
             }
@@ -124,12 +124,12 @@ export class UserController extends ControllerBase {
      * @example DELETE /user/:id
      * @returns если найден, то код 200, иначе 404 и 
      */
-    public readonly delete = (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
+    public readonly delete = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('delete called', getRequestIdMeta(res));
 
         try {
             const {id} = req.params;
-            const user = this.db.delete(id);
+            const user = await this.userService.deleteUser(id);
             if (user) {
                 res.send();
             }
@@ -147,13 +147,13 @@ export class UserController extends ControllerBase {
      * partialName - подстрока логина; N - число, ограничиваюшее resultSet. По умолчанию 10.
      * @returns {User[]} - если найдены, то HttpCode 200 и массив User, иначе, HttpCode 204 без тела.
      */
-    public readonly getSuggests = (req: ValidatedRequest<SuggestsSchema>, res: Response, next: NextFunction) => {
+    public readonly getSuggests = async (req: ValidatedRequest<SuggestsSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getSuggest called', getRequestIdMeta(res));
 
         try {
             const {query} = req;
 
-            const users = this.db.getSuggests(query.login, query.limit);
+            const users = await this.userService.findUserByLogin(query.login, query.limit);
             if (!users || !users.length) {
                 res.status(204);
             }
