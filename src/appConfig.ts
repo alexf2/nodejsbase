@@ -41,6 +41,11 @@ const configuration = {
             format: encoding,
             default: 'utf8',
         },
+        ['repository-type']: {
+            doc: 'Which repository to use to access data',
+            format: ['inMemory', 'prisma'],
+            default: 'inMemory',
+        },
     },
     
     server: {

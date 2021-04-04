@@ -13,6 +13,11 @@ const validateConfig = () => {
  * Хэлперы для получения конфигурации.
  */
 export class Config {
+    static get env() { 
+        validateConfig();
+        return config.get('env');
+    }
+
     // data
     static get docFolder() { 
         validateConfig();
@@ -33,6 +38,10 @@ export class Config {
     static get outEncoding() {
         validateConfig();
         return config.get('data.out-encoding') as BufferEncoding;
+    }
+    static get repositoryType() {
+        validateConfig();
+        return config.get('data.repository-type');
     }
 
     // server

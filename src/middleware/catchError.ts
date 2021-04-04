@@ -15,7 +15,7 @@ export const catchError = (logger: Logger): ErrorRequestHandler => (err, req, re
         return;
     }
 
-    if (err.error && err.error.isJoi) {
+    if (err.error && err.error.isJoi) { // ошибка валидатора request
         const e = err as ExpressJoiError;
         const {error} = e;
         httpError = {

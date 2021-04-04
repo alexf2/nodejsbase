@@ -2,14 +2,14 @@ import * as http from 'http';
 // import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
 import {requestId} from './middleware';
-import {UserRepositoryInMemory} from './DAL/UserRepositoryInMemory';
 import {UserController} from './controllers';
-import {Config, loggers, Logger, addRequestId} from './helpers';
+import {initializeDotEnvConfiguration, Config, loggers, Logger, addRequestId, repositoryFactory} from './helpers';
 import {UserService} from './services';
-import {IUser} from './DAL/models';
-import {testUsers} from './part2_testData';
+import {IUserRepository} from './DAL';
+
+initializeDotEnvConfiguration();
 class SimpleExpressServer {
-    private repository?: UserRepositoryInMemory;
+    private repository?: IUserRepository;
     private httpServer?: http.Server;
     private isShuttingdown = false;
 
@@ -27,7 +27,7 @@ class SimpleExpressServer {
     }
 
     private readonly initDb = async () => {
-        const repo = new UserRepositoryInMemory(testUsers as IUser[]);
+        const repo = repositoryFactory();
 
         this.logger.info('Repository is being opened...');
         await repo.open();

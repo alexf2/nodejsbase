@@ -6,7 +6,7 @@ export interface IDtoWithId<T> {
 }
 
 export interface IDtoWithSoftDel<T> extends IDtoWithId<T> {
-    isDeleted: boolean;
+    isDeleted?: boolean | null;
 }
 
 export interface IStorage {

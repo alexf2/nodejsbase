@@ -37,7 +37,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         return res && this.cleanFields(res) as any as TDto || res;
     }
 
-    public readonly create = async (data?: Partial<TDto>) => {
+    public readonly create = async (data?: Partial<TDto> | null) => {
         const {isDeleted, ...rest} = data || {};
         const item = {...rest, id: this.generateKey()} as TDto;
         this.data.push(item);
