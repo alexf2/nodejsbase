@@ -1,5 +1,3 @@
-import {v4 as uuidv4} from 'uuid';
-
 export const testUsers = [
     {
         id: '37c5c90e-551d-43ab-af2e-6a424d5e6d2d',
