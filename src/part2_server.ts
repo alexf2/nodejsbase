@@ -2,15 +2,14 @@ import * as http from 'http';
 // import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
 import {requestId} from './middleware';
-import {UserStorageInMemory} from './DAL/UserStorageInMemory';
+import {UserRepositoryInMemory} from './DAL/UserRepositoryInMemory';
 import {UserController} from './controllers';
 import {Config, loggers, Logger, addRequestId} from './helpers';
 import {UserService} from './services';
 import {IUser} from './DAL/models';
 import {testUsers} from './part2_testData';
-
 class SimpleExpressServer {
-    private storage?: UserStorageInMemory;
+    private repository?: UserRepositoryInMemory;
     private httpServer?: http.Server;
     private isShuttingdown = false;
 
@@ -27,13 +26,22 @@ class SimpleExpressServer {
         this.logger.info('Server is being initialized...');
     }
 
-    private readonly initDb = async () => new UserStorageInMemory(testUsers as IUser[]);
+    private readonly initDb = async () => {
+        const repo = new UserRepositoryInMemory(testUsers as IUser[]);
 
+        this.logger.info('Repository is being opened...');
+        await repo.open();
+        this.logger.info('Repository opened OK');
+
+        return repo;
+    }
+
+    // тут находится Composition Root
     public readonly run = async () => {
         this.logger.info('Server is about to run');
 
         // инициализация и конфигурирование сервера
-        this.storage = await this.initDb();
+        this.repository = await this.initDb();
         this.addGlobalMiddlewares();
         this.addControllers();
 
@@ -43,11 +51,12 @@ class SimpleExpressServer {
             this.ip,
             () => this.logger.info(`Server listens ${this.ip}:${this.port}`),
         );
+        // обработчик на завершение процесса для корректной очистки ресурсов, закрытия коннекшенов
         process.on('SIGINT', this.cleanup);
         process.on('SIGTERM', this.cleanup);
     }
 
-    private readonly cleanup = () => {
+    private readonly cleanup = async () => {
         this.isShuttingdown = true;
 
         const timeout = setTimeout(() => {
@@ -55,9 +64,11 @@ class SimpleExpressServer {
             process.exit(1);
         }, 30000).unref();
 
-        this.httpServer?.close(() => {
+        // тут надо закрыть входящие соединения клиентов к серверу
+        this.httpServer?.close(async () => {
             clearTimeout(timeout);
-            this.storage?.clear();
+            // закрываем репозиторий 
+            await this.repository?.destroy();
             this.logger.info('Express server with connections closed gracefully.');
             process.exit();
         });
@@ -79,7 +90,7 @@ class SimpleExpressServer {
 
     // добавляется после GlobalMiddlewares
     private readonly addControllers = () => {
-        const userService = new UserService(loggers.RestService, this.storage!);
+        const userService = new UserService(loggers.RestService, this.repository!);
         new UserController(loggers.RestService, userService).install(this.app);
     }
 

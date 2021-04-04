@@ -1,10 +1,10 @@
 import {IUserService} from './services.types';
 import {IUser} from 'DAL/models';
 import {Logger} from '../helpers';
-import {IUserStorage} from 'DAL/dal.types';
+import {IUserRepository} from 'DAL/dal.types';
 
 export class UserService implements IUserService {
-    constructor(private logger: Logger, private db: IUserStorage) {
+    constructor(private logger: Logger, private db: IUserRepository) {
     }
 
     public readonly getAllUsers = async (limit?: number | null) => this.db.getAll(limit);

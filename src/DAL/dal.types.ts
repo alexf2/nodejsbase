@@ -9,16 +9,21 @@ export interface IDtoWithSoftDel<T> extends IDtoWithId<T> {
     isDeleted: boolean;
 }
 
-export interface ICrudStorage<TDto, TKey> {
-    getAll: (limit?: number | null) => Readonly<TDto>[];
-    getById: (id: TKey) => Opt<Readonly<TDto>>;
-    create: (data: Opt<Partial<TDto>>) => TDto;
-    update: (id: TKey, data: Partial<TDto>) => Opt<Readonly<TDto>>;
-    delete: (id: TKey) => Opt<Readonly<TDto>>;
-    clear: () => number;
-    count: () => number;
+export interface IStorage {
+    open: () => Promise<void>;
+    destroy: () => Promise<void>;
 }
 
-export interface IUserStorage extends ICrudStorage<IUser, string> {
-    getSuggests: (loginPart?: string | null, limit?: number | null) => IUser[];
+export interface ICrudStorage<TDto, TKey> {
+    getAll: (limit?: number | null) => Promise<TDto[]>;
+    getById: (id: TKey) => Promise<Opt<TDto>>;
+    create: (data: Opt<Partial<Readonly<TDto>>>) => Promise<TDto>;
+    update: (id: TKey, data: Partial<Readonly<TDto>>) => Promise<Opt<TDto>>;
+    delete: (id: TKey) => Promise<Opt<TDto>>;
+    clear: () => Promise<number>;
+    count: () => Promise<number>;
+}
+
+export interface IUserRepository extends ICrudStorage<IUser, string>, IStorage {
+    getSuggests: (loginPart?: string | null, limit?: number | null) => Promise<IUser[]>;
 }

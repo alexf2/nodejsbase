@@ -10,9 +10,12 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         this.data = initialData;
     }
 
+    public readonly open = () => Promise.resolve();
+    public readonly destroy = () => Promise.resolve();
+
     protected abstract generateKey(): TKey;
 
-    public readonly getAll = (limit?: number | null) => {
+    public readonly getAll = async (limit?: number | null) => {
         const topF = R.take(limit || this.data.length);
         if (this.softDel) {
             return R.compose<TDto[], TDto[], TDto[], TDto[]>(
@@ -25,7 +28,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         return topF(this.data);
     }
 
-    public readonly getById = (id: TKey) => {
+    public readonly getById = async (id: TKey) => {
         const res = R.find<TDto>(R.propEq('id', id))(this.data);
         if (this.softDel && res?.isDeleted) {
             return;
@@ -34,7 +37,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         return res && this.cleanFields(res) as any as TDto || res;
     }
 
-    public readonly create = (data?: Partial<TDto>) => {
+    public readonly create = async (data?: Partial<TDto>) => {
         const {isDeleted, ...rest} = data || {};
         const item = {...rest, id: this.generateKey()} as TDto;
         this.data.push(item);
@@ -42,7 +45,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         return item;
     };
 
-    public readonly update = (id: TKey, data: Partial<TDto>) => {
+    public readonly update = async (id: TKey, data: Partial<TDto>) => {
         const i = R.findIndex<TDto>(R.propEq('id', id), this.data);
         if (i > -1) {
             const it = this.data[i];
@@ -58,7 +61,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         }
     }
 
-    public readonly delete = (id: TKey) => {
+    public readonly delete = async (id: TKey) => {
         const i = R.findIndex<TDto>(R.propEq('id', id), this.data);
         if (i > -1) {
             const item = this.data[i];
@@ -72,7 +75,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         }
     }
     
-    public readonly clear = () => {
+    public readonly clear = async () => {
         const size = this.data.length;
         if (this.softDel) {
             this.data.forEach(item => item.isDeleted = true);
@@ -82,7 +85,7 @@ export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<T
         return size;
     }
 
-    public readonly count = () => {
+    public readonly count = async () => {
         if (this.softDel) {
             return this.data.reduce((prev, curr, i) => prev + (curr.isDeleted ? 0 : 1), 0);
         } else {

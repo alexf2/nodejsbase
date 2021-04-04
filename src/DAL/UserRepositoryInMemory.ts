@@ -2,11 +2,11 @@ import * as R from 'ramda';
 import {v4 as uuidv4} from 'uuid';
 import {IUser} from 'DAL/models';
 import {CrudMemoryStorageBase} from './CrudMemoryStorageBase';
-import {IUserStorage} from './dal.types';
+import {IUserRepository} from './dal.types';
 
 const RESULTSET_LIMIT = 10;
 
-export class UserStorageInMemory extends CrudMemoryStorageBase<string, IUser> implements IUserStorage {
+export class UserRepositoryInMemory extends CrudMemoryStorageBase<string, IUser> implements IUserRepository {
 
     constructor(initialUsers: IUser[] = []) {
         super(initialUsers, true);
@@ -22,7 +22,7 @@ export class UserStorageInMemory extends CrudMemoryStorageBase<string, IUser> im
      * @param limit {number?} - ограничитель resultSet. По умолчанию 10.
      * @returns {IUser[]} - отфильтрованные и отсортированные по логину пользователи
      */
-    public readonly getSuggests = (loginPart?: string | null, limit?: number | null) => {
+    public readonly getSuggests = async (loginPart?: string | null, limit?: number | null) => {
         const orderByLogin = R.sortBy(R.prop('login'));
         const match = R.filter<IUser>(item => loginPart ? item.login.includes(loginPart) : true);
 
