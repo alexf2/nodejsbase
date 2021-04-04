@@ -83,6 +83,6 @@ export class UserRepositoryPrisma implements IUserRepository {
                 contains: loginPart!,
                 mode: 'insensitive',
             }},
-            ...(limit && {take: limit}),
+            take: limit || RESULTSET_LIMIT,
         });
 }
