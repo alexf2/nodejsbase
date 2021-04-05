@@ -30,19 +30,31 @@ export class UserRepositoryPrisma implements IUserRepository {
     public readonly open = () => this.ownsClient ? this.dbClient.$connect() : Promise.resolve();
     public readonly destroy = () => this.ownsClient ? this.dbClient.$disconnect() : Promise.resolve();
 
-    public readonly getAll = async (limit?: number | null) => this.dbClient.user.findMany(limit && {take: limit} || undefined);
-
-    public readonly getById = async (id: string) => this.dbClient.user.findUnique({where: {id}});
-
-    public readonly create = async (user?: Partial<IUser> | null) => this.dbClient.user.create(
-        {data: {
-            ...user,
-            id: uuidv4(),
-        } as IUser},
+    public readonly getAll = async (limit?: number | null) => this.dbClient.user.findMany(
+        {
+            where: {OR: [{isDeleted: false}, {isDeleted: null}]},
+            ...(limit && {take: limit}),
+        },
     );
 
+    public readonly getById = async (id: string) =>
+        this.dbClient.user.findUnique({where: {id}})
+            .then(user => user?.isDeleted ? undefined : user);
+
+    public readonly create = async (user?: Partial<IUser> | null) => {
+        const {isDeleted, ...rest} = user || {} as IUser;
+
+        return this.dbClient.user.create(
+            {data: {
+                ...rest,
+                id: uuidv4(),
+            } as IUser},
+        );
+    }
+
     public readonly update = async (userId: string, user: Partial<IUser>) => {
-        const {id, ...rest} = user;
+        const {id, isDeleted, ...rest} = user;
+
         return this.dbClient.user.update({
             where: {id: userId},
             data: {...rest} as IUser,
@@ -69,7 +81,7 @@ export class UserRepositoryPrisma implements IUserRepository {
 
     public readonly clear = async () => (await this.dbClient.user.deleteMany()).count;
 
-    public readonly count = async () => this.dbClient.user.count({});
+    public readonly count = async () => this.dbClient.user.count({where: {OR: [{isDeleted: false}, {isDeleted: null}]}});
 
     /**
      * Ищет пользователей по подстроке логина.
@@ -79,10 +91,13 @@ export class UserRepositoryPrisma implements IUserRepository {
      */
     public readonly getSuggests = async (loginPart?: string | null, limit?: number | null) =>
         this.dbClient.user.findMany({
-            where: {login: {
-                contains: loginPart!,
-                mode: 'insensitive',
-            }},
+            where: {
+                login: {
+                    contains: loginPart!,
+                    mode: 'insensitive',
+                },
+                OR: [{isDeleted: false}, {isDeleted: null}],
+            },
             take: limit || RESULTSET_LIMIT,
         });
 }
