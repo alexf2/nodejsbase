@@ -14,9 +14,12 @@
     
     "outDir": "./dist/ts",                          /* Redirect output structure to the directory. */
     "rootDir": ".",                                 /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-    "baseUrl": "./",                                /* Base directory to resolve non-absolute module names. */
-
+    "baseUrl": "./src",                                /* Base directory to resolve non-absolute module names. */
+    "paths": {
+      "src/*": ["./src/*"],
+    },
     "sourceMap": true,                              /* Generates corresponding '.map' file. */
   },
-  "exclude": ["**/node_modules/*", "dist"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

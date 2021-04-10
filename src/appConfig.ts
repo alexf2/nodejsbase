@@ -6,10 +6,15 @@ import * as path from 'path';
 
 convict.addFormat(ipaddress);
 
-// Тут описываем мету для нашего конфига со значениями по-умолчанию.
-// Для каждой разновидности билда/запуска (test, production, development) в отдельной корневой папке проекта подкладывается частичный config,
-// который переопределяет только нужные параметры конфигурации.
-export const config: convict.Config = convict({
+const encoding = ['utf8', 'ascii', 'base64', 'hex', 'ucs2', 'binary'];
+const configuration = {
+    env: {
+        doc: 'The applicaton environment.',
+        format: ['production', 'development', 'test'],
+        default: 'development',
+        env: 'NODE_ENV',
+    },
+
     data: {
         folder: {
             doc: 'Folder for data files. Should be specified relative to process root.',
@@ -28,65 +33,68 @@ export const config: convict.Config = convict({
         },
         ['input-encoding']: {
             doc: 'CSV encoding',
-            format: ['utf8', 'ascii', 'base64', 'hex', 'ucs2', 'binary'],
+            format: encoding,
             default: 'utf8',
         },
         ['out-encoding']: {
             doc: 'JSON encoding',
-            format: ['utf8', 'ascii', 'base64', 'hex', 'ucs2', 'binary'],
+            format: encoding,
             default: 'utf8',
         },
+        ['repository-type']: {
+            doc: 'Which repository to use to access data',
+            format: ['inMemory', 'prisma'],
+            default: 'inMemory',
+        },
     },
-    env: {
-        doc: 'The applicaton environment.',
-        format: ['production', 'development', 'test'],
-        default: 'development',
-        env: 'NODE_ENV',
+    
+    server: {
+        ip: {
+            doc: 'The IP address to bind.',
+            format: 'ipaddress',
+            default: '127.0.0.1',
+            env: 'IP_ADDRESS',
+        },
+        port: {
+            doc: 'The port to bind.',
+            format: 'port',
+            default: 5000,
+            env: 'PORT',
+        },
+        reqIdHeader: {
+            doc: 'The header where request ID is',
+            format: String,
+            default: 'api-request-id',
+            env: 'REQUEST_ID_HEADER',
+        },
     },
-    ip: {
-        doc: 'The IP address to bind.',
-        format: 'ipaddress',
-        default: '127.0.0.1',
-        env: 'IP_ADDRESS',
-    },
-    port: {
-        doc: 'The port to bind.',
-        format: 'port',
-        default: 5000,
-        env: 'PORT',
-    },
-    reqIdHeader: {
-        doc: 'The header where request ID is',
-        format: String,
-        default: 'api-request-id',
-        env: 'REQUEST_ID_HEADER',
-    },
+
     logger: {
         level: {
             doc: 'Logging level',
-            level: ['debug', 'info', 'warn', 'error'],
+            level: ['error', 'warn', 'info', 'http', 'verbose', 'debug'],
             default: 'debug',
             env: 'LOG_LEVEL',
         },
-        colorize: {
-            doc: 'Colorize the logs or not',
-            format: Boolean,
-            default: true,
+        transport: {
+            doc: 'Log output',
+            transport: ['Console', 'File'],
+            default: 'Console',
         },
-        prettyPrint: {
-            doc: 'Pretty print the extra data',
-            format: Boolean,
-            default: true,
-            env: 'LOG_PRETTY',
-        },
-        json: {
-            doc: 'Print logs as JSON',
-            format: Boolean,
-            default: false,
-            env: 'LOG_JSON',
+        format: {
+            doc: 'Log format',
+            format: ['Simple', 'Json'],
+            default: 'Simple',
         },
     },
-});
+};
+
+export type ConfigType = typeof configuration;
+
+// Тут описываем мету для нашего конфига со значениями по-умолчанию.
+// Для каждой разновидности билда/запуска (test, production, development) в отдельной корневой папке проекта подкладывается частичный config,
+// который переопределяет только нужные параметры конфигурации.
+export const config = convict(configuration);
 
 let isInitialized: boolean;
 
@@ -100,7 +108,7 @@ export const initilaizeConfig = () => {
 
         if (existsSync(configFile)) {
             config
-                .loadFile(configFile)
+                .loadFile(configFile) // вмёрживаем специфическую конфигурацию
                 .validate({allowed: 'strict'});
         }
     }

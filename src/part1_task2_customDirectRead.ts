@@ -1,10 +1,7 @@
 import {Converter} from 'csvtojson/v2/Converter';
 import * as fs from 'fs';
 import {Config, getOutFilePath} from './helpers';
-import {initilaizeConfig} from './appConfig';
 import {Factory} from './mentoring.types';
-
-initilaizeConfig(); // инициализируем конфигурацию
 
 /**
  * Конвертация с построчным чтением CSV-файла.
@@ -20,7 +17,7 @@ export const mainCustomLineStream = (
 
     const inputStream = inputFactory(csvPath, 1) // задаём размер буффера потока 1 байт и читаем CSV побайтно, накапливая только одну строку
         .on('readable', () => {
-            const data = inputStream!.read();
+            const data = inputStream.read();
             if (data) {
                 const char = data.toString();
                 line += char;
@@ -52,18 +49,18 @@ export const mainCustomLineStream = (
     const writeLine = (isFinal?: boolean) => {
         if (!line) {
             if (isFinal) {
-                converter!.end();
+                converter.end();
             }
             return;
         }
 
-        converter!.isPaused() && converter!.resume();
+        converter.isPaused() && converter.resume();
 
-        if (converter?.write(line, undefined, () => isFinal && converter!.end())) {
+        if (converter?.write(line, undefined, () => isFinal && converter.end())) {
             line = '';
         } else {
-            inputStream!.pause();
-            converter!.once('drain', () => writeLine(isFinal));
+            inputStream.pause();
+            converter.once('drain', () => writeLine(isFinal));
         }
     }
 
@@ -83,3 +80,7 @@ export const mainCustomLineStream = (
 // https://strongloop.com/strongblog/practical-examples-of-the-new-node-js-streams-api/
 // https://stackoverflow.com/questions/52391773/properly-extend-stream-transform-class-with-typescript
 
+// Decoding buffers in a writable stream
+// https://nodejs.org/api/stream.html#stream_class_stream_transform
+
+// Transforming console: https://ar.al/2018/12/20/a-simple-node-transform-stream-with-the-new-node-10-pipeline-function/
