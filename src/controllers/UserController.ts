@@ -5,18 +5,20 @@ import {Logger, NotFoundError, getRequestIdMeta} from '../helpers';
 import {ControllerBase} from './ControllerBase';
 import {IUserService} from '../services';
 import {
-    GetAllQuerySchema,
     userControllerValidator,
-    qsGetAllSchema,
-    paramGetByIdSchema,
-    GetByIdParamSchema,
-    bodyCreateSchema,
-    CreateBodySchema,
-    qsSuggestsSchema,
-    SuggestsSchema,
+    bodyCreateUser,
+    CreateUserBodySchema,
+    UpdateUserBodySchema,
+    qsSuggestsUser,
+    SuggestsUserSchema,
 } from './usercontroller.schemas';
-
-const BASE_URL = '/api';
+import {
+    GetAllQuerySchema,
+    qsGetAll,
+    paramGetById,
+    GetByIdParamSchema,
+} from './common.schemas';
+import {BASE_URL} from './const';
 
 export class UserController extends ControllerBase {
     constructor(logger: Logger, private userService: IUserService) {
@@ -85,7 +87,7 @@ export class UserController extends ControllerBase {
      * @example POST api/user
      * body: Partial<User> без id, isDeleted в теле игнорируется
      */
-    public readonly create = async (req: ValidatedRequest<CreateBodySchema>, res: Response, next: NextFunction) => {
+    public readonly create = async (req: ValidatedRequest<CreateUserBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('create called', getRequestIdMeta(res));
 
         try {
@@ -102,7 +104,7 @@ export class UserController extends ControllerBase {
      * body: Partial<User>, id и isDeleted в теле игнорируется, остальные поля мёржатся в текущий стэйт
      * TODO: может PATCH?
      */
-    public readonly update = async (req: ValidatedRequest<CreateBodySchema>, res: Response, next: NextFunction) => {
+    public readonly update = async (req: ValidatedRequest<UpdateUserBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('update called', getRequestIdMeta(res));
 
         try {
@@ -131,7 +133,7 @@ export class UserController extends ControllerBase {
             const {id} = req.params;
             const user = await this.userService.deleteUser(id);
             if (user) {
-                res.send();
+                res.send(user);
             }
             else {
                 throw new NotFoundError('User', id);
@@ -147,7 +149,7 @@ export class UserController extends ControllerBase {
      * partialName - подстрока логина; N - число, ограничиваюшее resultSet. По умолчанию 10.
      * @returns {User[]} - если найдены, то HttpCode 200 и массив User, иначе, HttpCode 204 без тела.
      */
-    public readonly getSuggests = async (req: ValidatedRequest<SuggestsSchema>, res: Response, next: NextFunction) => {
+    public readonly getSuggests = async (req: ValidatedRequest<SuggestsUserSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getSuggest called', getRequestIdMeta(res));
 
         try {
@@ -165,13 +167,13 @@ export class UserController extends ControllerBase {
 
     protected readonly installRoutes = (router: Router) => {
         router
-            .get('/users', userControllerValidator.query(qsGetAllSchema), this.getAll)
+            .get('/users', userControllerValidator.query(qsGetAll), this.getAll)
             .get('/users/count', this.getCount)
-            .get('/user/:id', userControllerValidator.params(paramGetByIdSchema), userControllerValidator.params(paramGetByIdSchema), this.getById)
-            .post('/user', userControllerValidator.body(bodyCreateSchema), this.create)
-            .put('/user/:id', userControllerValidator.params(paramGetByIdSchema), userControllerValidator.body(bodyCreateSchema), this.update)
-            .delete('/user/:id', userControllerValidator.params(paramGetByIdSchema), this.delete)
-            .get('/users/suggest', userControllerValidator.query(qsSuggestsSchema), this.getSuggests);
+            .get('/user/:id', userControllerValidator.params(paramGetById), this.getById)
+            .post('/user', userControllerValidator.body(bodyCreateUser), this.create)
+            .put('/user/:id', userControllerValidator.params(paramGetById), userControllerValidator.body(bodyCreateUser), this.update)
+            .delete('/user/:id', userControllerValidator.params(paramGetById), this.delete)
+            .get('/users/suggest', userControllerValidator.query(qsSuggestsUser), this.getSuggests);
 
         this.logger.debug(`Route GET ${this.makePath('users')} added`);
         this.logger.debug(`Route GET ${this.makePath('users/count')} added`);

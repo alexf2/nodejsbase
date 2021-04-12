@@ -1,5 +1,5 @@
 import {Opt} from '../mentoring.types';
-import {IUser} from 'DAL/models';
+import {IUser, IGroup} from 'DAL/models';
 
 export interface IDtoWithId<T> {
     id: T;
@@ -26,4 +26,8 @@ export interface ICrudStorage<TDto, TKey> {
 
 export interface IUserRepository extends ICrudStorage<IUser, string>, IStorage {
     getSuggests: (loginPart?: string | null, limit?: number | null) => Promise<IUser[]>;
+}
+
+export interface IGroupRepository extends ICrudStorage<IGroup, string>, IStorage {
+    addUsersToGroup: (groupId: string, userIds: string[]) => Promise<string[]>;
 }

@@ -1,5 +1,6 @@
 import * as path from 'path';
 import {config, getInitialized, initilaizeConfig} from '../appConfig';
+import {Env} from './Env';
 
 const validateConfig = () => {
     if (getInitialized()) {
@@ -16,6 +17,19 @@ export class Config {
     static get env() { 
         validateConfig();
         return config.get('env');
+    }
+
+    static get prismaConfig() {
+        const result = {} as any;
+    
+        if (Env.isDevelopment()) {
+            result.log = [{
+                emit: 'stdout',
+                level: 'query',
+            }];
+        }
+    
+        return result;
     }
 
     // data
@@ -77,3 +91,4 @@ export const getOutFilePath = filePath => {
     const {ext, base, ...rest} = path.parse(filePath);
     return path.format({...rest, ext: '.json'});
 };
+

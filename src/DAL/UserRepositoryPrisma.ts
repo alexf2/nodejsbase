@@ -1,30 +1,29 @@
 import {v4 as uuidv4} from 'uuid';
 import {PrismaClient} from '@prisma/client'
-import {IUser} from 'DAL/models';
+import {IUser, userModel2View, mapUserModel2View} from '../DAL/models';
 import {IUserRepository} from './dal.types';
-import {Env} from '../helpers';
+import {Config} from '../helpers';
+import {prismaErrorFilter} from './repositoryHelpers';
 
 const RESULTSET_LIMIT = 10;
 
-const getPrismaConfig = () => {
-    const config = {} as any;
-
-    if (Env.isDevelopment()) {
-        config.log = [{
-            emit: 'stdout',
-            level: 'query',
-        }];
-    }
-
-    return config;
+const includeGroupsCondition = {
+    include: {
+        groups: {
+            select: {
+                group: true,
+            },
+        },
+    },
 };
+
 export class UserRepositoryPrisma implements IUserRepository {
-    private dbClient = new PrismaClient(getPrismaConfig());
+    private dbClient;
     private ownsClient: boolean;
 
     constructor (client?: PrismaClient) {
-        this.dbClient = client || new PrismaClient(getPrismaConfig());
-        this.ownsClient = Boolean(client);
+        this.ownsClient = !client;
+        this.dbClient = client || new PrismaClient(Config.prismaConfig);
     }
 
     public readonly open = () => this.ownsClient ? this.dbClient.$connect() : Promise.resolve();
@@ -34,12 +33,14 @@ export class UserRepositoryPrisma implements IUserRepository {
         {
             where: {OR: [{isDeleted: false}, {isDeleted: null}]},
             ...(limit && {take: limit}),
+            ...includeGroupsCondition,
         },
-    );
+    ).then(mapUserModel2View);
 
     public readonly getById = async (id: string) =>
-        this.dbClient.user.findUnique({where: {id}})
-            .then(user => user?.isDeleted ? undefined : user);
+        this.dbClient.user.findUnique({where: {id}, ...includeGroupsCondition})
+            .then(user => user?.isDeleted ? undefined : user)
+            .then(userModel2View);
 
     public readonly create = async (user?: Partial<IUser> | null) => {
         const {isDeleted, ...rest} = user || {} as IUser;
@@ -58,26 +59,36 @@ export class UserRepositoryPrisma implements IUserRepository {
         return this.dbClient.user.update({
             where: {id: userId},
             data: {...rest} as IUser,
-        });
+        }).catch(prismaErrorFilter);
     }
 
-    public readonly delete = async (id: string) =>
+    /*public readonly delete = async (id: string) =>
         this.dbClient.user.update({
             where: {id},
             data: {isDeleted: true} as IUser,
-        }).catch(err => {
-            if (err.code === 'P2025') {
-                return undefined;
-            }
-            throw err;
-        });
-        /*this.dbClient.user.delete({where: {id}})
-            .catch(err => {
-                if (err.code === 'P2025') {
-                    return undefined;
-                }
-                throw err;
-            });*/
+        }).catch(prismaErrorFilter);*/
+
+    public readonly delete = async (id: string) => {
+        const checkUser = await this.dbClient.user.findMany(
+            {
+                where: {AND: [{id}, {OR: [{isDeleted: false}, {isDeleted: null}]}]},
+            },
+        );
+        if (checkUser.length === 0) {
+            return;
+        }
+
+        const [links, user] = await this.dbClient.$transaction([
+            this.dbClient.userGroup.deleteMany({where: {idUser: id}}),
+
+            this.dbClient.user.update({
+                where: {id},
+                data: {isDeleted: true} as IUser,
+            }),
+        ]).catch(prismaErrorFilter);
+
+        return user;
+    }
 
     public readonly clear = async () => (await this.dbClient.user.deleteMany()).count;
 
@@ -99,5 +110,6 @@ export class UserRepositoryPrisma implements IUserRepository {
                 OR: [{isDeleted: false}, {isDeleted: null}],
             },
             take: limit || RESULTSET_LIMIT,
+            ...includeGroupsCondition,
         });
 }

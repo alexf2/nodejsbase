@@ -16,14 +16,39 @@ model User {
     password String @db.VarChar(64)
     age Int
     isDeleted Boolean?
+    groups UserGroup[]
+}
+
+enum Permission {
+    READ
+    WRITE
+    DELETE
+    SHARE
+    UPLOAD_FILES
+}
+
+model Group {
+    id String @id @db.Uuid
+    name String @unique @db.VarChar(64)
+    permissions Permission[]
+    users UserGroup[]
+}
+
+model UserGroup {
+    idUser String @db.Uuid
+    idGroup String @db.Uuid
+    user User @relation(fields: [idUser], references: [id])
+    group Group @relation(fields: [idGroup], references: [id])
+
+    @@unique([idUser, idGroup])
 }
 
 // не забывать добавлять в начале команды: dotenv -e .env.development --
 
-// npx prisma migrate development --name init - создать миграцию
+// npx prisma migrate dev --name init - создать миграцию
 // npx prisma migrate deploy --name init - создать миграцию для прода
 // npx prisma migrate reset
-// npx prisma migrate development --create-only - только создание миграции
+// npx prisma migrate dev --create-only - только создание миграции
 // npx prisma migrate up --experimental - ещё вид миграции
 // npx prisma generate - генерация клиента
 // npx prisma db seed --preview-feature - запустить только seeding
