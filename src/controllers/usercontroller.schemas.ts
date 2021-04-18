@@ -10,52 +10,34 @@ export const userControllerValidator = createValidator({
 });
 
 
-export const qsGetAllSchema = Joi.object({
-    limit: Joi.number().integer().min(1).optional(),
+export const bodyCreateUser = Joi.object({
+    login: Joi.string().required(),
+    password: Joi.string().pattern(/^((\d+[A-Za-z]+)|([A-Za-z]+\d+))[\dA-Za-z]*$/).required(),
+    age: Joi.number().integer().min(4).max(130).required(),
 });
-export interface GetAllQuerySchema extends ValidatedRequestSchema {
-    [ContainerTypes.Query]: {
-        limit: number;
+export interface CreateUserBodySchema extends ValidatedRequestSchema {
+    [ContainerTypes.Body]: {
+        login: string;
+        password: string;
+        age: number;
     }
 }
-
-export const paramGetByIdSchema = Joi.object({
-    id: Joi.string().uuid().required(),
-});
-export interface GetByIdParamSchema extends ValidatedRequestSchema {
+export interface UpdateUserBodySchema extends ValidatedRequestSchema {
+    [ContainerTypes.Body]: {
+        login: string;
+        password: string;
+        age: number;
+    }
     [ContainerTypes.Params]: {
         id: string;
     }
 }
 
-export const bodyCreateSchema = Joi.object({
-    login: Joi.string().required(),
-    password: Joi.string().pattern(/^((\d+[A-Za-z]+)|([A-Za-z]+\d+))[\dA-Za-z]*$/).required(),
-    age: Joi.number().integer().min(4).max(130).required(),
-});
-export interface CreateBodySchema extends ValidatedRequestSchema {
-    [ContainerTypes.Body]: {
-        login: string;
-        password: string;
-        age: number;
-    }
-}
-export interface UpdateBodySchema extends ValidatedRequestSchema {
-    [ContainerTypes.Body]: {
-        login: string;
-        password: string;
-        age: number;
-    }
-    [ContainerTypes.Query]: {
-        id: number;
-    }
-}
-
-export const qsSuggestsSchema = Joi.object({
+export const qsSuggestsUser = Joi.object({
     login: Joi.string().required(),
     limit: Joi.number().integer().min(1).optional(),
 });
-export interface SuggestsSchema extends ValidatedRequestSchema {
+export interface SuggestsUserSchema extends ValidatedRequestSchema {
     [ContainerTypes.Query]: {
         login: string;
         limit: number;

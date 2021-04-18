@@ -1,15 +1,18 @@
 import * as http from 'http';
 // import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
-import {requestId} from './middleware';
-import {UserController} from './controllers';
-import {initializeDotEnvConfiguration, Config, loggers, Logger, addRequestId, repositoryFactory} from './helpers';
-import {UserService} from './services';
-import {IUserRepository} from './DAL';
+import {requestId, route404Handler, getBadRequestErrorHandler} from './middleware';
+import {UserController, GroupController} from './controllers';
+import {initializeDotEnvConfiguration, Config, loggers, Logger, repositoryFactory} from './helpers';
+import {UserService, GroupService} from './services';
+import {IUserRepository, IGroupRepository} from './DAL';
 
 initializeDotEnvConfiguration();
 class SimpleExpressServer {
-    private repository?: IUserRepository;
+    private userRepository?: IUserRepository;
+    private groupRepository?: IGroupRepository;
+    private userLogger?: Logger;
+    private groupLogger?: Logger;
     private httpServer?: http.Server;
     private isShuttingdown = false;
 
@@ -27,13 +30,15 @@ class SimpleExpressServer {
     }
 
     private readonly initDb = async () => {
-        const repo = repositoryFactory();
-
         this.logger.info('Repository is being opened...');
-        await repo.open();
+        const repositories = await repositoryFactory();
+
+        for (const repoField of Object.keys(repositories.repo)) {
+            await repositories.repo[repoField].open();
+        }
         this.logger.info('Repository opened OK');
 
-        return repo;
+        return repositories;
     }
 
     // тут находится Composition Root
@@ -41,9 +46,15 @@ class SimpleExpressServer {
         this.logger.info('Server is about to run');
 
         // инициализация и конфигурирование сервера
-        this.repository = await this.initDb();
-        this.addGlobalMiddlewares();
+        const {repo: {userRepo, groupRepo}, logger: {userLogger, groupLogger}} = await this.initDb();
+        this.userRepository = userRepo;
+        this.groupRepository = groupRepo;
+        this.userLogger = userLogger;
+        this.groupLogger = groupLogger;
+
+        this.addGlobalPreMiddlewares();
         this.addControllers();
+        this.addGlobalPostMiddlewares();
 
         // запуск сервера
         this.httpServer = this.app.listen(
@@ -68,7 +79,8 @@ class SimpleExpressServer {
         this.httpServer?.close(async () => {
             clearTimeout(timeout);
             // закрываем репозиторий 
-            await this.repository?.destroy();
+            await this.userRepository?.destroy();
+            await this.groupRepository?.destroy();
             this.logger.info('Express server with connections closed gracefully.');
             process.exit();
         });
@@ -84,27 +96,27 @@ class SimpleExpressServer {
         }
     }
 
-    private readonly addGlobalMiddlewares = () => {
-        this.app.use(requestId, this.restartingMiddleware, express.json(), this.globalErrorHandler);
+    /**
+     * Добавляет middleware, которое должно обработать запрос до конмтроллеров.
+     */
+    private readonly addGlobalPreMiddlewares = () => {
+        this.app.use(requestId, this.restartingMiddleware, express.json());
+    }
+
+    /**
+     * Добавляет middleware, которое должно обработать запрос после конмтроллеров.
+     */
+    private readonly addGlobalPostMiddlewares = () => {
+        this.app.use(route404Handler, getBadRequestErrorHandler(this.logger));
     }
 
     // добавляется после GlobalMiddlewares
     private readonly addControllers = () => {
-        const userService = new UserService(loggers.RestService, this.repository!);
-        new UserController(loggers.RestService, userService).install(this.app);
-    }
+        const userService = new UserService(this.userLogger!, this.userRepository!);
+        new UserController(this.userLogger!, userService).install(this.app);
 
-    private readonly globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-        if (err) {
-            const isParsingError = err instanceof SyntaxError; // тут ловим ошибки парсинга request json из express.json()
-            const code = isParsingError ? 400 : 500;
-            const name = isParsingError ? `RequestParsingError: ${err.name}` : `InternalServerError: ${err.name}`;
-
-            this.logger.error(err.message || name, {meta: addRequestId(res, {name, code}), stack: err.stack});
-            res.status(code).json({name, message: err.message});
-        } else {
-            next();
-        }
+        const groupService = new GroupService(this.groupLogger!, this.groupRepository!);
+        new GroupController(this.groupLogger!, groupService).install(this.app);
     }
 }
 

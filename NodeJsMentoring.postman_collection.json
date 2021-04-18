@@ -6,249 +6,542 @@
 	},
 	"item": [
 		{
-			"name": "GetAllUsers",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/users",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"users"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetAllUsersLimit",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/users?limit=1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"users"
-					],
-					"query": [
-						{
-							"key": "limit",
-							"value": "1"
+			"name": "Module 2&3",
+			"item": [
+				{
+					"name": "GetAllUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users"
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "CreateUser",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"login\": \"Igor Makarov\",\r\n  \"password\": \"volf22\",\r\n  \"age\": 33\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "http://localhost:5000/api/user",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"user"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "CreateUserFailedPaswwordValidation",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"login\": \"Igor 25\",\r\n  \"password\": \"volf\",\r\n  \"age\": 33\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "GetAllUsersLimit",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/users?limit=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "1"
+								}
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "http://localhost:5000/api/user",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"user"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "UpdateUser",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"password\": \"volf11\",\r\n  \"age\": 41,\r\n  \"login\": \"xxx_updated\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "CountUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/users/count",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users",
+								"count"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "http://localhost:5000/api/user/37c5c90e-551d-43ab-af2e-6a424d5e6d2d",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"user",
-						"37c5c90e-551d-43ab-af2e-6a424d5e6d2d"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "SuggestUsers",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/users/suggest?login=gor",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"users",
-						"suggest"
-					],
-					"query": [
-						{
-							"key": "login",
-							"value": "gor"
+				{
+					"name": "GetById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/user/bf99e759-a844-43bf-8373-386c22699656",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"bf99e759-a844-43bf-8373-386c22699656"
+							]
 						}
-					]
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"login\": \"Igor Makarov\",\r\n  \"password\": \"volf22\",\r\n  \"age\": 33\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUserFailedPaswwordValidation",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"login\": \"Igor 25\",\r\n  \"password\": \"volf\",\r\n  \"age\": 33\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUser",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"password\": \"volf11\",\r\n  \"age\": 41,\r\n  \"login\": \"xxx_updated\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user/37c5c90e-551d-43ab-af2e-6a424d5e6d2d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"37c5c90e-551d-43ab-af2e-6a424d5e6d2d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SuggestUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/users/suggest?login=gor",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users",
+								"suggest"
+							],
+							"query": [
+								{
+									"key": "login",
+									"value": "gor"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveUser",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/user/0f3b5819-c7fe-4e8f-b061-33f7aa266803",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"0f3b5819-c7fe-4e8f-b061-33f7aa266803"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveUserFailed",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/user/121",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"121"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "RemoveUserFailed",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/user/121",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"user",
-						"121"
-					]
+			"name": "Module 4",
+			"item": [
+				{
+					"name": "GetAllGroups",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetGroupById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/group/21c5c90e-551d-43ab-af2e-6a424d5e6d2d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group",
+								"21c5c90e-551d-43ab-af2e-6a424d5e6d2d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CountGroups",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/groups/count",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"groups",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateGroup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Super test group\",\r\n  \"permissions\": [\"READ\", \"WRITE\", \"DELETE\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateGroupFailedValidation",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Super test group\",\r\n  \"permissions\": [\"READ2\", \"WRITE\", \"DELETE\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateGroup",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Regulat user upd\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/group/21c5c90e-551d-43ab-af2e-6a424d5e6d2d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group",
+								"21c5c90e-551d-43ab-af2e-6a424d5e6d2d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateGroupFailedNotFoundy",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Regulat user upd\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/group/21c5c90e-551d-43ab-af2e-6a424d5e6d1f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group",
+								"21c5c90e-551d-43ab-af2e-6a424d5e6d1f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateGroupFiledTooLongName",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Regulat user upd sdsdsdsd asdsadasdsad sadasdasdasd asdasdsadasd adasdasdsad sadasdsadsadas sadsadasdasdasdas sadasdasdasdas sadsadasdasdasdas asdasdsadasdasd\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/group/21c5c90e-551d-43ab-af2e-6a424d5e6d2d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group",
+								"21c5c90e-551d-43ab-af2e-6a424d5e6d2d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddUsersToGroup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\"37c5c90e-551d-43ab-af2e-6a424d5e6d2d\", \"bf2ba91c-e3ac-47f4-9e53-6ddb85245659\", \"0f3b5819-c7fe-4e8f-b061-33f7aa266803\", \"ea6c8250-4ed2-47f3-8638-b661400fe24d\"]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/group/11c5c90e-551d-43ab-af2e-6a424d5e6d2d/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group",
+								"11c5c90e-551d-43ab-af2e-6a424d5e6d2d",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveGroup",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/group/21c5c90e-551d-43ab-af2e-6a424d5e6d2d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group",
+								"21c5c90e-551d-43ab-af2e-6a424d5e6d2d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveGroupFailedNotFound",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/group/21c5c90e-551d-43ab-af2e-6a424d5e6d11",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"group",
+								"21c5c90e-551d-43ab-af2e-6a424d5e6d11"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "RemoveUser",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/user/0f3b5819-c7fe-4e8f-b061-33f7aa266803",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"user",
-						"0f3b5819-c7fe-4e8f-b061-33f7aa266803"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetById",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/user/bf99e759-a844-43bf-8373-386c22699656",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"user",
-						"bf99e759-a844-43bf-8373-386c22699656"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Count",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/api/users/count",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"users",
-						"count"
-					]
-				}
-			},
-			"response": []
+			]
 		}
 	]
 }

@@ -28,7 +28,9 @@ const customFormatter = printf(({message, level, timestamp, component, meta, sta
 class LoggersManager {
     private isCreated = false;
     private coreLogger: W.Logger | undefined;
-    private memoryServiceLogger: W.Logger | undefined;
+    private memoryUserServiceLogger: W.Logger | undefined;
+    private prismaUserServiceLogger: W.Logger | undefined;
+    private prismaGroupServiceLogger: W.Logger | undefined;
 
     private readonly create = () => {
         if (!this.isCreated) {
@@ -67,8 +69,18 @@ class LoggersManager {
                 ...baseConfig,
             });
 
-            this.memoryServiceLogger = W.createLogger({
-                defaultMeta: {component: 'M_SERVICE'},
+            this.memoryUserServiceLogger = W.createLogger({
+                defaultMeta: {component: 'MEM_USER_SERVICE'},
+                ...baseConfig,
+            });
+
+            this.prismaUserServiceLogger = W.createLogger({
+                defaultMeta: {component: 'PRISMA_USER_SERVICE'},
+                ...baseConfig,
+            });
+
+            this.prismaGroupServiceLogger = W.createLogger({
+                defaultMeta: {component: 'PRISMA_GROUP_SERVICE'},
                 ...baseConfig,
             });
         }
@@ -79,9 +91,19 @@ class LoggersManager {
         return this.coreLogger!;
     }
 
-    public get RestService() {
+    public get MemoryUserService() {
         this.create();
-        return this.memoryServiceLogger!;
+        return this.memoryUserServiceLogger!;
+    }
+
+    public get PrismaUserService() {
+        this.create();
+        return this.prismaUserServiceLogger!;
+    }
+
+    public get PrismaGroupService() {
+        this.create();
+        return this.prismaGroupServiceLogger!;
     }
 }
 
