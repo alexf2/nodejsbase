@@ -31,6 +31,7 @@ class LoggersManager {
     private memoryUserServiceLogger: W.Logger | undefined;
     private prismaUserServiceLogger: W.Logger | undefined;
     private prismaGroupServiceLogger: W.Logger | undefined;
+    private module5CallInfoLogger: W.Logger | undefined;
 
     private readonly create = () => {
         if (!this.isCreated) {
@@ -60,13 +61,14 @@ class LoggersManager {
                     ].filter(Boolean) as W.Logform.Format[]),
                 ),
                 transports: [logSink],
-                exitOnError: true,
-                exceptionHandlers: [logSink],
             };
 
             this.coreLogger = W.createLogger({
                 defaultMeta: {component: 'CORE'},
                 ...baseConfig,
+                // Мод. 5: обработку необработанных исключений выносим
+                /*exitOnError: true,
+                exceptionHandlers: [logSink],*/
             });
 
             this.memoryUserServiceLogger = W.createLogger({
@@ -81,6 +83,11 @@ class LoggersManager {
 
             this.prismaGroupServiceLogger = W.createLogger({
                 defaultMeta: {component: 'PRISMA_GROUP_SERVICE'},
+                ...baseConfig,
+            });
+
+            this.module5CallInfoLogger = W.createLogger({
+                defaultMeta: {component: 'MOD5_CALL_INFO'},
                 ...baseConfig,
             });
         }
@@ -104,6 +111,11 @@ class LoggersManager {
     public get PrismaGroupService() {
         this.create();
         return this.prismaGroupServiceLogger!;
+    }
+
+    public get Mod5CallInfo() {
+        this.create();
+        return this.module5CallInfoLogger!;
     }
 }
 

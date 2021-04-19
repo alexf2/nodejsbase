@@ -1,18 +1,31 @@
 import * as http from 'http';
 // import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
-import {requestId, route404Handler, getBadRequestErrorHandler} from './middleware';
+import {
+    requestId,
+    route404Handler,
+    getBadRequestErrorHandler,
+    getRequestInfo,
+    getUnhandledErrorHandler,
+    getUnhandledRejectionHandler,
+} from './middleware';
 import {UserController, GroupController} from './controllers';
 import {initializeDotEnvConfiguration, Config, loggers, Logger, repositoryFactory} from './helpers';
 import {UserService, GroupService} from './services';
 import {IUserRepository, IGroupRepository} from './DAL';
 
 initializeDotEnvConfiguration();
+
+/**
+ * Composition root REST сервера.
+ * Пока общий для всех модулей менторинга.
+ */
 class SimpleExpressServer {
     private userRepository?: IUserRepository;
     private groupRepository?: IGroupRepository;
-    private userLogger?: Logger;
-    private groupLogger?: Logger;
+    private userLogger?: Logger; // логгер для UserService
+    private groupLogger?: Logger; // логгер для GroupService
+    private module5CallInfoLogger?: Logger; // логгер для отображения информации о вызове REST API
     private httpServer?: http.Server;
     private isShuttingdown = false;
 
@@ -51,10 +64,12 @@ class SimpleExpressServer {
         this.groupRepository = groupRepo;
         this.userLogger = userLogger;
         this.groupLogger = groupLogger;
+        this.module5CallInfoLogger = loggers.Mod5CallInfo;
 
         this.addGlobalPreMiddlewares();
         this.addControllers();
         this.addGlobalPostMiddlewares();
+        this.addProcessErrorHandlers();
 
         // запуск сервера
         this.httpServer = this.app.listen(
@@ -101,6 +116,8 @@ class SimpleExpressServer {
      */
     private readonly addGlobalPreMiddlewares = () => {
         this.app.use(requestId, this.restartingMiddleware, express.json());
+        // логирование запросов к REST-сервисам (модуль 5)
+        this.app.all('/*', getRequestInfo(this.module5CallInfoLogger!));
     }
 
     /**
@@ -117,6 +134,16 @@ class SimpleExpressServer {
 
         const groupService = new GroupService(this.groupLogger!, this.groupRepository!);
         new GroupController(this.groupLogger!, groupService).install(this.app);
+    }
+
+    // Мод. 5.2.
+    // Вместо src\helpers\loggers.ts
+    // exitOnError: true,
+    // exceptionHandlers: [logSink],
+    // Обрабатывать можно либо тут, либо там.
+    private readonly addProcessErrorHandlers = () => {
+        process.on('uncaughtException', getUnhandledErrorHandler(this.logger));
+        process.on('unhandledRejection', getUnhandledRejectionHandler(this.logger));
     }
 }
 
