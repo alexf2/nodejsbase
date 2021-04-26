@@ -252,6 +252,27 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "RemoveNonExistingUser",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/user/37c5c90e-551d-43ab-af2e-6a424d5e6d21",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"37c5c90e-551d-43ab-af2e-6a424d5e6d21"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

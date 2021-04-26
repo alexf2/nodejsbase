@@ -59,7 +59,10 @@ export class UserRepositoryPrisma implements IUserRepository {
         return this.dbClient.user.update({
             where: {id: userId},
             data: {...rest} as IUser,
-        }).catch(prismaErrorFilter);
+            ...includeGroupsCondition,
+        })
+            .then(userModel2View)
+            .catch(prismaErrorFilter);
     }
 
     /*public readonly delete = async (id: string) =>
@@ -84,10 +87,12 @@ export class UserRepositoryPrisma implements IUserRepository {
             this.dbClient.user.update({
                 where: {id},
                 data: {isDeleted: true} as IUser,
+                ...includeGroupsCondition,
             }),
-        ]).catch(prismaErrorFilter);
+        ])
+            .catch(prismaErrorFilter);
 
-        return user;
+        return userModel2View(user);
     }
 
     public readonly clear = async () => (await this.dbClient.user.deleteMany()).count;
@@ -111,5 +116,5 @@ export class UserRepositoryPrisma implements IUserRepository {
             },
             take: limit || RESULTSET_LIMIT,
             ...includeGroupsCondition,
-        });
+        }).then(mapUserModel2View);
 }
