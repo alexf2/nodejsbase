@@ -1,9 +1,14 @@
 import {User, Group} from '@prisma/client';
 
-export const userModel2View = (u: User) => ({
-    ...u,
-    groups: (u as any).groups.map(g => ({...g.group})),
-});
+export const userModel2View = (u: User) => {
+    const {isDeleted, ...rest} = u;
+    const {groups} = u as any;
+
+    return {
+        ...rest,
+        ...(groups && {groups: groups.map(g => ({...g.group}))}),
+    };
+}
 
 export const mapUserModel2View = (users: User[]) => users.map(userModel2View);
 

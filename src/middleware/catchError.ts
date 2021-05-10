@@ -38,7 +38,7 @@ export const catchError = (logger: Logger): ErrorRequestHandler => (err, req, re
         httpError = {
             code: 500,
             name: `GeneralInternalServerError: ${err.name}`,
-            message: err.message,
+            message: 'Internal server error', // Мод. 5.2: скрытие внутренних ошибок
         };
         logError = {
             code: 500,
