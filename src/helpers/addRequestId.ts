@@ -1,11 +1,16 @@
-import {Response} from 'express';
+import {Request} from 'express';
 import {Config} from './Config';
 
-export const addRequestId = (response: Response, meta?: Record<string, unknown>) => ({
-    ...meta,
-    [Config.reqIdHeader]: response.getHeader(Config.reqIdHeader),
-});
+export const addRequestId = (req: Request, meta?: Record<string, unknown>) => {
+    const {user} = req as any;
 
-export const getRequestIdMeta = (response: Response) => ({
-    meta: addRequestId(response),
+    return {
+        ...meta,
+        [Config.reqIdHeader]: req[Config.reqIdHeader],
+        ...(user && {user: {id: user.id, login: user.login}}),
+    };
+}
+
+export const getRequestIdMeta = (req: Request) => ({
+    meta: addRequestId(req),
 });

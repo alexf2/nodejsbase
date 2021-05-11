@@ -126,7 +126,7 @@
 					"response": []
 				},
 				{
-					"name": "CreateUserFailedPaswwordValidation",
+					"name": "CreateUser_FailedPaswwordValidation",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -233,7 +233,7 @@
 					"response": []
 				},
 				{
-					"name": "RemoveUserFailed",
+					"name": "RemoveUser_Failed",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -371,7 +371,7 @@
 					"response": []
 				},
 				{
-					"name": "CreateGroupFailedValidation",
+					"name": "CreateGroup_FailedValidation",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -430,7 +430,7 @@
 					"response": []
 				},
 				{
-					"name": "UpdateGroupFailedNotFoundy",
+					"name": "UpdateGroup_FailedNotFoundy",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -460,7 +460,7 @@
 					"response": []
 				},
 				{
-					"name": "UpdateGroupFiledTooLongName",
+					"name": "UpdateGroup_FiledTooLongName",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -542,7 +542,7 @@
 					"response": []
 				},
 				{
-					"name": "RemoveGroupFailedNotFound",
+					"name": "RemoveGroup_FailedNotFound",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -557,6 +557,208 @@
 								"api",
 								"group",
 								"21c5c90e-551d-43ab-af2e-6a424d5e6d11"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Module 6",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"Andrey\",\r\n    \"password\": \"andrey1\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login_WrongHttpVerb",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"Andrey\",\r\n    \"password\": \"andrey1\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Secure_GetAllUsers",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM3YzVjOTBlLTU1MWQtNDNhYi1hZjJlLTZhNDI0ZDVlNmQyZCIsImxvZ2luIjoiQW5kcmV5IiwiZ3JvdXBzIjpbeyJpZCI6IjUxYzVjOTBlLTU1MWQtNDNhYi1hZjJlLTZhNDI0ZDVlNmQyZCIsIm5hbWUiOiJVbmRlcndyaXRlciJ9LHsiaWQiOiIyMWM1YzkwZS01NTFkLTQzYWItYWYyZS02YTQyNGQ1ZTZkMmQiLCJuYW1lIjoiUmVndWxhciBVc2VyIn1dLCJpYXQiOjE2MjA3NjQwNTl9.5Rv488wK4LDtWrgU1xgzXgb775h18S6hJGhJzGOfoi8",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Secure_GetAllUsers_Unauthorized",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Secure_GetAllUsers_Forbidden",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "xxx",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/api/users?=",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login_NoPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"Andrey\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login_WrongPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"Andrey\",\r\n    \"password\": \"andrey1ss\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"login"
 							]
 						}
 					},

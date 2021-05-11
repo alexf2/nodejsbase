@@ -20,4 +20,6 @@ export class UserService implements IUserService {
     public readonly deleteUser = async (id: string) => this.db.delete(id);
 
     public readonly findUserByLogin = async (loginPart: string, limit?: number) => this.db.getSuggests(loginPart, limit);
+
+    public readonly getUserByLogin = async (login: string) => this.db.getUserByLogin(login);
 }

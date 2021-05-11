@@ -1,5 +1,5 @@
 import {PrismaClient, User, Group} from '@prisma/client'
-import {testUsers} from '../src/part2_testData';
+import {getTestUsers} from '../src/part2_testData';
 import {testGroups} from '../src/part4_testData';
 
 const prisma = new PrismaClient();
@@ -13,7 +13,7 @@ const reportUserGroups = (g: any) => {
 // Проверка в DBeaver: select * from serviceschema."User";
 
 async function addUsers() {
-    for (const user of testUsers) {
+    for (const user of await getTestUsers()) {
         const u = await prisma.user.upsert({
             where: {id: user.id},
             update: {},
