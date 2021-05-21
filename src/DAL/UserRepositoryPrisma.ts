@@ -117,4 +117,9 @@ export class UserRepositoryPrisma implements IUserRepository {
             take: limit || RESULTSET_LIMIT,
             ...includeGroupsCondition,
         }).then(mapUserModel2View);
+
+    public readonly getUserByLogin = async (login: string) =>
+        this.dbClient.user.findUnique({where: {login}, ...includeGroupsCondition})
+            .then(user => user?.isDeleted ? undefined : user)
+            .then(userModel2View);
 }

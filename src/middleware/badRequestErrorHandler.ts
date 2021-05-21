@@ -27,7 +27,7 @@ export const getBadRequestErrorHandler = (logger: Logger) => (err: any, req: Req
         const code = err.code || getCodeByError(err);
         const {name} = err;
 
-        logger.error(err.message || name, {meta: addRequestId(res, {name, code}), stack: err.stack});
+        logger.error(err.message || name, {meta: addRequestId(req, {name, code}), stack: err.stack});
         res.status(code).json({
             name,
             message: code === 500 ? 'Internal server error. Use reqIdHeader header to investigate error details in server logs.' : err.message,

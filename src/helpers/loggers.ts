@@ -31,6 +31,7 @@ class LoggersManager {
     private memoryUserServiceLogger: W.Logger | undefined;
     private prismaUserServiceLogger: W.Logger | undefined;
     private prismaGroupServiceLogger: W.Logger | undefined;
+    private prismaAuthServiceLogger: W.Logger | undefined;
     private module5CallInfoLogger: W.Logger | undefined;
 
     private readonly create = () => {
@@ -81,6 +82,11 @@ class LoggersManager {
                 ...baseConfig,
             });
 
+            this.prismaAuthServiceLogger = W.createLogger({
+                defaultMeta: {component: 'PRISMA_AUTH_SERVICE'},
+                ...baseConfig,
+            });
+
             this.prismaGroupServiceLogger = W.createLogger({
                 defaultMeta: {component: 'PRISMA_GROUP_SERVICE'},
                 ...baseConfig,
@@ -111,6 +117,11 @@ class LoggersManager {
     public get PrismaGroupService() {
         this.create();
         return this.prismaGroupServiceLogger!;
+    }
+
+    public get PrismaAuthService() {
+        this.create();
+        return this.prismaAuthServiceLogger!;
     }
 
     public get Mod5CallInfo() {

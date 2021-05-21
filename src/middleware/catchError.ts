@@ -59,5 +59,5 @@ export const catchError = (logger: Logger): ErrorRequestHandler => (err, req, re
     res.status(code).json({...rest});
 
     const {message, stack, ...restLog} = logError;
-    logger.error(message || logError.name, {meta: addRequestId(res, {...restLog}), stack});
+    logger.error(message || logError.name, {meta: addRequestId(req, {...restLog}), stack});
 };

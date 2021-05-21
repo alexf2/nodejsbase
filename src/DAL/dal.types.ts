@@ -26,6 +26,7 @@ export interface ICrudStorage<TDto, TKey> {
 
 export interface IUserRepository extends ICrudStorage<IUser, string>, IStorage {
     getSuggests: (loginPart?: string | null, limit?: number | null) => Promise<IUser[]>;
+    getUserByLogin: (id: string) => Promise<Opt<IUser>>;
 }
 
 export interface IGroupRepository extends ICrudStorage<IGroup, string>, IStorage {

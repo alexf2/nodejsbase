@@ -1,4 +1,7 @@
 import * as http from 'http';
+import helmet from 'helmet';
+import nocache from 'nocache';
+import cors from 'cors';
 // import {URLSearchParams} from 'url';
 import express, {Application, Request, Response, NextFunction} from 'express';
 import {
@@ -8,10 +11,11 @@ import {
     getRequestInfo,
     getUnhandledErrorHandler,
     getUnhandledRejectionHandler,
+    getAuthMiddleware,
 } from './middleware';
-import {UserController, GroupController} from './controllers';
+import {UserController, GroupController, AuthenticationController, FULL_LOGIN_ROUTE} from './controllers';
 import {initializeDotEnvConfiguration, Config, loggers, Logger, repositoryFactory} from './helpers';
-import {UserService, GroupService} from './services';
+import {UserService, GroupService, IUserService, IGroupService} from './services';
 import {IUserRepository, IGroupRepository} from './DAL';
 
 initializeDotEnvConfiguration();
@@ -23,9 +27,12 @@ initializeDotEnvConfiguration();
 class SimpleExpressServer {
     private userRepository?: IUserRepository;
     private groupRepository?: IGroupRepository;
+    private userService?: IUserService;
+    private groupService?: IGroupService;
     private userLogger?: Logger; // логгер для UserService
     private groupLogger?: Logger; // логгер для GroupService
     private module5CallInfoLogger?: Logger; // логгер для отображения информации о вызове REST API
+    private authLogger?: Logger;
     private httpServer?: http.Server;
     private isShuttingdown = false;
 
@@ -59,11 +66,14 @@ class SimpleExpressServer {
         this.logger.info('Server is about to run');
 
         // инициализация и конфигурирование сервера
-        const {repo: {userRepo, groupRepo}, logger: {userLogger, groupLogger}} = await this.initDb();
+        const {repo: {userRepo, groupRepo}, logger: {userLogger, groupLogger, authLogger}} = await this.initDb();
         this.userRepository = userRepo;
         this.groupRepository = groupRepo;
+        this.userService = new UserService(this.userLogger!, userRepo);
+        this.groupService = new GroupService(this.groupLogger!, groupRepo);
         this.userLogger = userLogger;
         this.groupLogger = groupLogger;
+        this.authLogger = authLogger;
         this.module5CallInfoLogger = loggers.Mod5CallInfo;
 
         this.addGlobalPreMiddlewares();
@@ -115,7 +125,21 @@ class SimpleExpressServer {
      * Добавляет middleware, которое должно обработать запрос до конмтроллеров.
      */
     private readonly addGlobalPreMiddlewares = () => {
-        this.app.use(requestId, this.restartingMiddleware, express.json());
+        this.app.use(
+            helmet.hidePoweredBy(),
+            helmet.xssFilter(),
+            helmet.referrerPolicy(),
+            helmet.frameguard(),
+            helmet.dnsPrefetchControl(),
+            nocache(),
+        );
+        this.app.use(
+            requestId,
+            this.restartingMiddleware,
+            getAuthMiddleware(this.userService!, this.authLogger!, FULL_LOGIN_ROUTE),
+            cors(),
+            express.json(),
+        );
         // логирование запросов к REST-сервисам (модуль 5)
         this.app.all('/*', getRequestInfo(this.module5CallInfoLogger!));
     }
@@ -129,11 +153,9 @@ class SimpleExpressServer {
 
     // добавляется после GlobalMiddlewares
     private readonly addControllers = () => {
-        const userService = new UserService(this.userLogger!, this.userRepository!);
-        new UserController(this.userLogger!, userService).install(this.app);
-
-        const groupService = new GroupService(this.groupLogger!, this.groupRepository!);
-        new GroupController(this.groupLogger!, groupService).install(this.app);
+        new UserController(this.userLogger!, this.userService!).install(this.app);
+        new GroupController(this.groupLogger!, this.groupService!).install(this.app);
+        new AuthenticationController(this.authLogger!, this.userService!).install(this.app);
     }
 
     // Мод. 5.2.

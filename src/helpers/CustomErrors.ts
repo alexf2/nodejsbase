@@ -47,6 +47,28 @@ export class NotFoundError extends CustomError {
     protected readonly getHttpCode = () => 404;
 }
 
+export class ForbiddenError extends CustomError {
+    constructor(subject: string, login: string) {
+        super(`Bad ${subject} for '${login}'`);
+
+        this.publicData = {login};
+        this.privateData = {stack: this.stack};
+    }
+    protected readonly getHttpCode = () => 403;
+}
+
+export class ForbiddenLoginError extends ForbiddenError {
+    constructor(login: string) {
+        super('login', login);
+    }
+}
+
+export class ForbiddenPwdError extends ForbiddenError {
+    constructor(login: string) {
+        super('password', login);
+    }
+}
+
 export class BadRequestError extends CustomError {
     constructor(action: string, summary: string, params: any) {
         super(`Invalid parameters at [${action}]: ${summary}`);

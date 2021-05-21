@@ -26,7 +26,7 @@ export class GroupController extends ControllerBase {
     }
 
     public readonly getAll = async (req: ValidatedRequest<GetAllQuerySchema>, res: Response, next: NextFunction) => {
-        this.logger.debug('getAll called', getRequestIdMeta(res));
+        this.logger.debug('getAll called', getRequestIdMeta(req));
 
         try {
             const {query} = req;
@@ -42,7 +42,7 @@ export class GroupController extends ControllerBase {
     }
 
     public readonly getCount = async (req: Request, res: Response, next: NextFunction) => {
-        this.logger.debug('getCount called', getRequestIdMeta(res));
+        this.logger.debug('getCount called', getRequestIdMeta(req));
 
         try {
             const count = await this.groupService.countGroups();
@@ -53,7 +53,7 @@ export class GroupController extends ControllerBase {
     }
 
     public readonly getById = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
-        this.logger.debug('getGroupById called', getRequestIdMeta(res));
+        this.logger.debug('getGroupById called', getRequestIdMeta(req));
 
         try {
             const {id} = req.params;
@@ -69,7 +69,7 @@ export class GroupController extends ControllerBase {
     }
 
     public readonly create = async (req: ValidatedRequest<CreateGroupBodySchema>, res: Response, next: NextFunction) => {
-        this.logger.debug('create called', getRequestIdMeta(res));
+        this.logger.debug('create called', getRequestIdMeta(req));
 
         try {
             const group = await this.groupService.createGroup(req.body);
@@ -80,7 +80,7 @@ export class GroupController extends ControllerBase {
     }
 
     public readonly update = async (req: ValidatedRequest<UpdateGroupBodySchema>, res: Response, next: NextFunction) => {
-        this.logger.debug('update called', getRequestIdMeta(res));
+        this.logger.debug('update called', getRequestIdMeta(req));
 
         try {
             const {id} = req.params;
@@ -97,7 +97,7 @@ export class GroupController extends ControllerBase {
     }
 
     public readonly delete = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
-        this.logger.debug('delete called', getRequestIdMeta(res));
+        this.logger.debug('delete called', getRequestIdMeta(req));
 
         try {
             const {id} = req.params;
@@ -114,7 +114,7 @@ export class GroupController extends ControllerBase {
     }
 
     public readonly addUsersToGroup = async (req: ValidatedRequest<AddUsersToGroupBodySchema>, res: Response, next: NextFunction) => {
-        this.logger.debug('addUsersToGroup called', getRequestIdMeta(res));
+        this.logger.debug('addUsersToGroup called', getRequestIdMeta(req));
 
         try {
             const {id} = req.params;

@@ -28,4 +28,13 @@ export class UserRepositoryInMemory extends CrudMemoryStorageBase<string, IUser>
 
         return R.compose<IUser[], IUser[], IUser[], IUser[]>(R.take(limit || RESULTSET_LIMIT), match, orderByLogin)(this.data);
     };
+    
+    public readonly getUserByLogin = async (login: string) => {
+        const res = R.find<IUser>(R.propEq('login', login))(this.data);
+        if (this.softDel && res?.isDeleted) {
+            return;
+        }
+
+        return res && this.cleanFields(res) as any as IUser || res;
+    };
 }

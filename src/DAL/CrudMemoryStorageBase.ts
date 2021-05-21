@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import {ICrudStorage, IDtoWithSoftDel} from './dal.types';
 
 export abstract class CrudMemoryStorageBase<TKey, TDto extends IDtoWithSoftDel<TKey>> implements ICrudStorage<TDto, TKey> {
-    private readonly cleanFields = R.dissoc('isDeleted');
+    protected readonly cleanFields = R.dissoc('isDeleted');
     protected data: TDto[];
 
     constructor(initialData: TDto[] = [], protected softDel: boolean) {

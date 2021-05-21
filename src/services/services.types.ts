@@ -9,6 +9,7 @@ export interface IUserService {
     updateUser: (data: Partial<Readonly<IUser>>) => Promise<Opt<IUser>>;
     deleteUser: (id: string) => Promise<Opt<IUser>>;
     findUserByLogin: (loginPart: string, limit?: number) => Promise<IUser[]>;
+    getUserByLogin: (id: string) => Promise<Opt<IUser>>;
 }
 
 export interface IGroupService {

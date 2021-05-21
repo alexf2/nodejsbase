@@ -4,16 +4,16 @@ import {UserRepositoryPrisma} from '../DAL/UserRepositoryPrisma';
 import {GroupRepositoryPrisma} from '../DAL/GroupRepositoryPrisma';
 import {Config} from './Config';
 import {IUser} from '../DAL/models';
-import {testUsers} from '../part2_testData';
+import {getTestUsers} from '../part2_testData';
 import {loggers} from './loggers';
 
-const userRepoFactory = (client?: PrismaClient) => {
+const userRepoFactory =async  (client?: PrismaClient) => {
     switch (Config.repositoryType) {
         case 'prisma':
             return new UserRepositoryPrisma(client);
 
         default:
-            return new UserRepositoryInMemory(testUsers as IUser[]);
+            return new UserRepositoryInMemory(await getTestUsers() as IUser[]);
     }
 }
 
@@ -25,11 +25,12 @@ export const repositoryFactory = async () => {
 
     return {
         repo: {
-            userRepo: userRepoFactory(client),
+            userRepo: await userRepoFactory(client),
             groupRepo: groupRepoFactory(client),
         },
         logger: {
             userLogger: Config.repositoryType === 'prisma' ? loggers.PrismaUserService : loggers.MemoryUserService,
+            authLogger: loggers.PrismaAuthService,
             groupLogger: loggers.PrismaGroupService,
         },
     };
