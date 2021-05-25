@@ -190,7 +190,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5000/api/users/suggest?login=gor",
+							"raw": "http://localhost:5000/api/users/suggest?login=a&",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -204,7 +204,11 @@
 							"query": [
 								{
 									"key": "login",
-									"value": "gor"
+									"value": "a"
+								},
+								{
+									"key": "",
+									"value": null
 								}
 							]
 						}
@@ -214,6 +218,16 @@
 				{
 					"name": "RemoveUser",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM3YzVjOTBlLTU1MWQtNDNhYi1hZjJlLTZhNDI0ZDVlNmQyZCIsImxvZ2luIjoiQW5kcmV5IiwiZ3JvdXBzIjpbeyJpZCI6IjUxYzVjOTBlLTU1MWQtNDNhYi1hZjJlLTZhNDI0ZDVlNmQyZCIsIm5hbWUiOiJVbmRlcndyaXRlciJ9LHsiaWQiOiIyMWM1YzkwZS01NTFkLTQzYWItYWYyZS02YTQyNGQ1ZTZkMmQiLCJuYW1lIjoiUmVndWxhciBVc2VyIn1dLCJpYXQiOjE2MjA3NjQwNTl9.5Rv488wK4LDtWrgU1xgzXgb775h18S6hJGhJzGOfoi8",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
@@ -273,6 +287,41 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{auth-token}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "x-access-token",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		},
@@ -561,6 +610,41 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{auth-token}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "x-access-token",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		},

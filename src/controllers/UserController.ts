@@ -1,8 +1,7 @@
 // import {URLSearchParams} from 'url';
 import {ValidatedRequest} from 'express-joi-validation';
-import {compareSync} from 'bcrypt';
 import {NextFunction, Request, Response, Router} from 'express';
-import {Logger, NotFoundError, getRequestIdMeta, hashPassword, BadRequestError} from '../helpers';
+import {Logger, NotFoundError, getRequestIdMeta, hashPassword, BadRequestError, safeAsyncHandler} from '../helpers';
 import {ControllerBase} from './ControllerBase';
 import {IUserService} from '../services';
 import {
@@ -23,6 +22,10 @@ import {
 } from './common.schemas';
 import {BASE_URL} from './const';
 
+/**
+ * Возвращает DTO с хешем пароля.
+ * Используется, чтобы не хранить в базе пароль в открытом виде.
+ */
 const hidePassword = async (dto: ValidatedRequest<CreateUserBodySchema>['body'], update = false) => {
     const {password} = dto;
     if (password !== undefined) {
@@ -41,73 +44,56 @@ export class UserController extends ControllerBase {
      * @example GET api/users?limit=N
      * где N - число, ограничивающее resultset. По умолчанию N не определено и возвращается всё.
      */
-    public readonly getAll = async (req: ValidatedRequest<GetAllQuerySchema>, res: Response, next: NextFunction) => {
+    public readonly getAll = safeAsyncHandler(async (req: ValidatedRequest<GetAllQuerySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getAll called', getRequestIdMeta(req));
 
-        try {
-            const {query} = req;
+        const {query} = req;
 
-            // const users = this.db.getAll(parseInt(query.get('limit')!)); //URLSearchParams
-            const users = await this.userService.getAllUsers(query.limit);
-            if (!users || !users.length) {
-                res.status(204);
-            }
-            res.json(users);
-        } catch (err) {
-            next(err);
+        const users = await this.userService.getAllUsers(query.limit);
+        if (!users || !users.length) {
+            res.status(204);
         }
-    }
+        res.json(users);
+    })
 
     /**
      * Возвращает число пользователей.
      * @example GET api/users/count
      */
-    public readonly getCount = async (req: Request, res: Response, next: NextFunction) => {
+    public readonly getCount = safeAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         this.logger.debug('getCount called', getRequestIdMeta(req));
 
-        try {
-            const count = await this.userService.countUsers();
-            res.json(count);
-        } catch (err) {
-            next(err);
-        }
-    }
+        const count = await this.userService.countUsers();
+        res.json(count);
+    })
 
     /**
      * Возвращает пользователя по его id.
      * @example GET api/user/:id
      */
-    public readonly getById = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
+    public readonly getById = safeAsyncHandler(async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getById called', getRequestIdMeta(req));
 
-        try {
-            const {id} = req.params;
-            const user = await this.userService.getUserById(id);
-            if (user) {
-                res.json(user);
-            } else {
-                throw new NotFoundError('User', id);
-            }
-        } catch (err) {
-            next(err);
+        const {id} = req.params;
+        const user = await this.userService.getUserById(id);
+        if (user) {
+            res.json(user);
+        } else {
+            throw new NotFoundError('User', id);
         }
-    }
+    })
 
     /**
      * Создаёт нового пользователя.
      * @example POST api/user
      * body: Partial<User> без id, isDeleted в теле игнорируется
      */
-    public readonly create = async (req: ValidatedRequest<CreateUserBodySchema>, res: Response, next: NextFunction) => {
+    public readonly create = safeAsyncHandler(async (req: ValidatedRequest<CreateUserBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('create called', getRequestIdMeta(req));
 
-        try {
-            const user = await this.userService.createUser(await hidePassword(req.body));
-            res.status(201).json(user);
-        } catch (err) {
-            next(err);
-        }
-    }
+        const user = await this.userService.createUser(await hidePassword(req.body));
+        res.status(201).json(user);
+    })
 
     /**
      * Редактирует пользователя.
@@ -115,53 +101,45 @@ export class UserController extends ControllerBase {
      * body: Partial<User>, id и isDeleted в теле игнорируется, остальные поля мёржатся в текущий стэйт
      * TODO: может PATCH?
      */
-    public readonly update = async (req: ValidatedRequest<UpdateUserBodySchema>, res: Response, next: NextFunction) => {
+    public readonly update = safeAsyncHandler(async (req: ValidatedRequest<UpdateUserBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('update called', getRequestIdMeta(req));
 
-        try {
-            const {id} = req.params;
-            let userData = {...req.body};
-            const currentUser = await this.userService.getUserById(id);
-            if (!currentUser) {
-                throw new NotFoundError('User', id);
-            }
-
-            // если пароль изменился, то он придёт в плэйн-тексте и надо преобразовать в хэш
-            const isPasswordTheSame = compareSync(userData.password, currentUser.password);
-            if (!isPasswordTheSame) {
-                if (userData.password.match(passwordPattern)) {
-                    throw new BadRequestError('Login', `Пароль '${userData.password}' не соотвествует требованиям`, {...userData});
-                }
-                userData = await hidePassword(userData);
-            }
-            const user = await this.userService.updateUser({...userData, id});
-            res.json(user);
-        } catch (err) {
-            next(err);
+        const {id} = req.params;
+        let userData = {...req.body};
+        const currentUser = await this.userService.getUserById(id);
+        if (!currentUser) {
+            throw new NotFoundError('User', id);
         }
-    }
+
+        // если пароль изменился, то он придёт в плэйн-тексте и надо преобразовать в хэш
+        const isPasswordTheSame = userData.password === currentUser.password;
+        if (!isPasswordTheSame) {
+            if (!userData.password.match(passwordPattern)) {
+                throw new BadRequestError('Login', `Пароль '${userData.password}' не соотвествует требованиям`, {...userData});
+            }
+            userData = await hidePassword(userData);
+        }
+        const user = await this.userService.updateUser({...userData, id});
+        res.json(user);
+    })
 
     /**
      * Удаляет пользователя по id.
      * @example DELETE /user/:id
      * @returns если найден, то код 200, иначе 404 и 
      */
-    public readonly delete = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
+    public readonly delete = safeAsyncHandler(async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('delete called', getRequestIdMeta(req));
 
-        try {
-            const {id} = req.params;
-            const user = await this.userService.deleteUser(id);
-            if (user) {
-                res.send(user);
-            }
-            else {
-                throw new NotFoundError('User', id);
-            }
-        } catch (err) {
-            next(err);
+        const {id} = req.params;
+        const user = await this.userService.deleteUser(id);
+        if (user) {
+            res.json(user);
         }
-    }
+        else {
+            throw new NotFoundError('User', id);
+        }
+    })
 
     /**
      * Ищет пользователей по подстроке в логине.
@@ -169,21 +147,17 @@ export class UserController extends ControllerBase {
      * partialName - подстрока логина; N - число, ограничиваюшее resultSet. По умолчанию 10.
      * @returns {User[]} - если найдены, то HttpCode 200 и массив User, иначе, HttpCode 204 без тела.
      */
-    public readonly getSuggests = async (req: ValidatedRequest<SuggestsUserSchema>, res: Response, next: NextFunction) => {
+    public readonly getSuggests = safeAsyncHandler(async (req: ValidatedRequest<SuggestsUserSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getSuggest called', getRequestIdMeta(req));
 
-        try {
-            const {query} = req;
+        const {query} = req;
 
-            const users = await this.userService.findUserByLogin(query.login, query.limit);
-            if (!users || !users.length) {
-                res.status(204);
-            }
-            res.json(users);
-        } catch (err) {
-            next(err);
+        const users = await this.userService.findUserByLogin(query.login, query.limit);
+        if (!users || !users.length) {
+            res.status(204);
         }
-    }
+        res.json(users);
+    })
 
     protected readonly installRoutes = (router: Router) => {
         router

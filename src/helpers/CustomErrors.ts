@@ -47,23 +47,23 @@ export class NotFoundError extends CustomError {
     protected readonly getHttpCode = () => 404;
 }
 
-export class ForbiddenError extends CustomError {
+export class UnauthorizedError extends CustomError {
     constructor(subject: string, login: string) {
         super(`Bad ${subject} for '${login}'`);
 
         this.publicData = {login};
         this.privateData = {stack: this.stack};
     }
-    protected readonly getHttpCode = () => 403;
+    protected readonly getHttpCode = () => 401;
 }
 
-export class ForbiddenLoginError extends ForbiddenError {
+export class UnauthorizedLoginError extends UnauthorizedError {
     constructor(login: string) {
         super('login', login);
     }
 }
 
-export class ForbiddenPwdError extends ForbiddenError {
+export class UnauthorizedPwdError extends UnauthorizedError {
     constructor(login: string) {
         super('password', login);
     }
