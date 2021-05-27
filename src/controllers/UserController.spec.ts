@@ -1,44 +1,10 @@
-import {mocked} from 'ts-jest/utils';
-import {Response} from 'express';
 import {IUser} from 'DAL/models';
 import {getTestUsers} from '../part2_testData';
-import {IUserService} from '../services';
 import {UserController} from './UserController';
-import {Logger, NotFoundError, BadRequestError, hashPassword} from '../helpers';
+import {NotFoundError, BadRequestError, hashPassword} from '../helpers';
+import {errorMsg, loggerMock, userServiceMock, getResponseMock, nextMock} from '../helpers/mocks';
 
-const errorMsg = 'Generic error';
-
-const loggerMock = mocked<Logger>(new (jest.fn(() => ({
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    debug: jest.fn(),
-    verbose: jest.fn(),
-    silly: jest.fn(),
-} as any))), true);
-
-const userServiceMock = mocked<IUserService>(new (jest.fn(() => ({
-    getAllUsers: jest.fn(),
-    countUsers: jest.fn(),
-    getUserById: jest.fn(),
-    createUser: jest.fn(),
-    deleteUser: jest.fn(),
-    findUserByLogin: jest.fn(),
-    updateUser: jest.fn(),
-} as any))), true);
-
-const getResponseMock = () => {
-    const res = {} as Response;
-
-    res.status = jest.fn().mockReturnValue(res);
-    res.json = jest.fn().mockReturnValue(res);
-    res.send = jest.fn().mockReturnValue(res);
-
-    return res;
-};
 let responseMock = getResponseMock();
-
-const nextMock = jest.fn();
 
 let testUsers: IUser[];
 let ctrl: UserController;

@@ -31,6 +31,7 @@ export class GroupController extends ControllerBase {
         const {query} = req;
 
         const groups = await this.groupService.getAllGroups(query.limit);
+
         if (!groups || !groups.length) {
             res.status(204);
         }
