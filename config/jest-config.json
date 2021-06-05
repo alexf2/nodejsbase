@@ -1,0 +1,28 @@
+  {
+    "bail": 50,
+    "automock": false,
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "coverageDirectory": "<rootDir>../coverage/",
+    "transformIgnorePatterns": ["<rootDir>../node_modules/"],
+    "testEnvironment": "node",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|js)$",
+    "transform": {".tsx?$": "ts-jest"},
+    "roots": ["<rootDir>../src"],
+    "collectCoverageFrom": [
+      "**/controllers/**/*.{js,ts}",
+      "!**/node_modules/**",
+      "!**/vendor/**"
+    ],
+    "globals": {
+        "ts-jest": {
+          "tsconfig": "tsconfig.json",
+          "NODE_ENV": "test"
+        }
+      },
+    "testMatch": null,
+    "preset": "ts-jest"
+}

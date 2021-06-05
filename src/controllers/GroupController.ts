@@ -1,7 +1,7 @@
 // import {URLSearchParams} from 'url';
 import {ValidatedRequest} from 'express-joi-validation';
 import {NextFunction, Request, Response, Router} from 'express';
-import {Logger, NotFoundError, getRequestIdMeta} from '../helpers';
+import {Logger, NotFoundError, getRequestIdMeta, safeAsyncHandler} from '../helpers';
 import {ControllerBase} from './ControllerBase';
 import {IGroupService} from '../services';
 import {
@@ -25,106 +25,83 @@ export class GroupController extends ControllerBase {
         super(BASE_URL, logger);
     }
 
-    public readonly getAll = async (req: ValidatedRequest<GetAllQuerySchema>, res: Response, next: NextFunction) => {
+    public readonly getAll = safeAsyncHandler(async (req: ValidatedRequest<GetAllQuerySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getAll called', getRequestIdMeta(req));
 
-        try {
-            const {query} = req;
+        const {query} = req;
 
-            const groups = await this.groupService.getAllGroups(query.limit);
-            if (!groups || !groups.length) {
-                res.status(204);
-            }
-            res.json(groups);
-        } catch (err) {
-            next(err);
+        const groups = await this.groupService.getAllGroups(query.limit);
+
+        if (!groups || !groups.length) {
+            res.status(204);
         }
-    }
+        res.json(groups);
+    })
 
-    public readonly getCount = async (req: Request, res: Response, next: NextFunction) => {
+    public readonly getCount = safeAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         this.logger.debug('getCount called', getRequestIdMeta(req));
 
-        try {
-            const count = await this.groupService.countGroups();
-            res.json(count);
-        } catch (err) {
-            next(err);
-        }
-    }
+        const count = await this.groupService.countGroups();
+        res.json(count);
+    })
 
-    public readonly getById = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
+    public readonly getById = safeAsyncHandler(async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('getGroupById called', getRequestIdMeta(req));
 
-        try {
-            const {id} = req.params;
-            const group = await this.groupService.getGroupById(id);
-            if (group) {
-                res.json(group);
-            } else {
-                throw new NotFoundError('Group', id);
-            }
-        } catch (err) {
-            next(err);
+        const {id} = req.params;
+        const group = await this.groupService.getGroupById(id);
+        if (group) {
+            res.json(group);
+        } else {
+            throw new NotFoundError('Group', id);
         }
-    }
+    })
 
-    public readonly create = async (req: ValidatedRequest<CreateGroupBodySchema>, res: Response, next: NextFunction) => {
+    public readonly create = safeAsyncHandler(async (req: ValidatedRequest<CreateGroupBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('create called', getRequestIdMeta(req));
 
-        try {
-            const group = await this.groupService.createGroup(req.body);
-            res.status(201).json(group);
-        } catch (err) {
-            next(err);
-        }
-    }
+        const group = await this.groupService.createGroup(req.body);
+        res.status(201).json(group);
+    })
 
-    public readonly update = async (req: ValidatedRequest<UpdateGroupBodySchema>, res: Response, next: NextFunction) => {
+    public readonly update = safeAsyncHandler(async (req: ValidatedRequest<UpdateGroupBodySchema>, res: Response, next: NextFunction) => {
         this.logger.debug('update called', getRequestIdMeta(req));
 
-        try {
-            const {id} = req.params;
-            const group = await this.groupService.updateGroup({...req.body, id});
-            if (group) {
-                res.json(group);
-            }
-            else {
-                throw new NotFoundError('Group', id);
-            }
-        } catch (err) {
-            next(err);
+        const {id} = req.params;
+        const group = await this.groupService.updateGroup({...req.body, id});
+        if (group) {
+            res.json(group);
         }
-    }
+        else {
+            throw new NotFoundError('Group', id);
+        }
+    })
 
-    public readonly delete = async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
+    public readonly delete = safeAsyncHandler(async (req: ValidatedRequest<GetByIdParamSchema>, res: Response, next: NextFunction) => {
         this.logger.debug('delete called', getRequestIdMeta(req));
 
-        try {
-            const {id} = req.params;
-            const group = await this.groupService.deleteGroup(id);
-            if (group) {
-                res.send(group);
-            }
-            else {
-                throw new NotFoundError('Group', id);
-            }
-        } catch (err) {
-            next(err);
+        const {id} = req.params;
+        const group = await this.groupService.deleteGroup(id);
+        if (group) {
+            res.json(group);
         }
-    }
+        else {
+            throw new NotFoundError('Group', id);
+        }
+    })
 
-    public readonly addUsersToGroup = async (req: ValidatedRequest<AddUsersToGroupBodySchema>, res: Response, next: NextFunction) => {
+    public readonly addUsersToGroup = safeAsyncHandler(async (
+        req: ValidatedRequest<AddUsersToGroupBodySchema>,
+        res: Response,
+        next: NextFunction) => {
+
         this.logger.debug('addUsersToGroup called', getRequestIdMeta(req));
 
-        try {
-            const {id} = req.params;
-            const users = await this.groupService.addUsersToGroup(id, req.body);
+        const {id} = req.params;
+        const users = await this.groupService.addUsersToGroup(id, req.body);
 
-            res.send(users);
-        } catch (err) {
-            next(err);
-        }
-    }
+        res.send(users);
+    })
 
     protected readonly installRoutes = (router: Router) => {
         router

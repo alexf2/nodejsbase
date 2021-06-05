@@ -6,3 +6,4 @@ export * from './Env';
 export * from './repositoryFactory_task3';
 export * from './dotenvConfig';
 export * from './server';
+export * from './safeAsyncHandler';
